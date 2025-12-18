@@ -4,6 +4,9 @@ import LoginPage from '@/pages/login'
 import RegisterPage from '@/pages/register'
 import ForgotPasswordPage from '@/pages/forgot-password'
 import LoadingPage from '@/pages/loading'
+import DashboardPage from '@/pages/dashboard'
+import AuthLayout from '@/layouts/auth-layout'
+import AdminLayout from '@/layouts/admin-layout'
 
 export const router = createBrowserRouter([
   {
@@ -12,29 +15,34 @@ export const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    // element: <Layout />,
+    element: <AdminLayout />,
     children: [
       {
         index: true,
-        element: <div>Home</div>,
+        element: <DashboardPage />,
       },
       {
         path: 'dashboard',
-        element: <div>Dashboard</div>,
+        element: <DashboardPage />,
       },
     ],
   },
   {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/register',
-    element: <RegisterPage />,
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotPasswordPage />,
+    element: <AuthLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/register',
+        element: <RegisterPage />,
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPasswordPage />,
+      },
+    ],
   },
   {
     path: '*',
