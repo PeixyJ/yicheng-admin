@@ -1,13 +1,17 @@
 import { createBrowserRouter } from 'react-router-dom'
 import ErrorPage from '@/pages/not-found'
-
-// 页面组件将在这里导入
-// import Home from '@/pages/Home'
-// import Login from '@/pages/Login'
+import LoginPage from '@/pages/login'
+import RegisterPage from '@/pages/register'
+import ForgotPasswordPage from '@/pages/forgot-password'
+import LoadingPage from '@/pages/loading'
 
 export const router = createBrowserRouter([
   {
     path: '/',
+    element: <LoadingPage />,
+  },
+  {
+    path: '/admin',
     // element: <Layout />,
     children: [
       {
@@ -22,7 +26,15 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <div>Login</div>,
+    element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPasswordPage />,
   },
   {
     path: '*',
