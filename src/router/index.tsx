@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
+import ErrorPage from '@/pages/not-found'
 
 // 页面组件将在这里导入
 // import Home from '@/pages/Home'
@@ -25,6 +26,6 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <div>404 Not Found</div>,
+    element: <ErrorPage />,
   },
 ])
