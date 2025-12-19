@@ -1,79 +1,171 @@
-import type { ApiResponse } from '@/types/user'
+import axios, {
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios'
+import { toast } from 'sonner'
+import { type ApiResponse, BusinessError } from '@/types/api'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+// Token 存储的 key
+const TOKEN_KEY = 'access_token'
 
-interface RequestOptions extends RequestInit {
-  params?: Record<string, string | number | undefined>
+// 不需要 token 的白名单路径
+const WHITE_LIST = ['/v1/login/', '/v1/register/', '/v1/auth/']
+
+/**
+ * 创建 axios 实例
+ */
+const instance: AxiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+/**
+ * 获取 token
+ */
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY)
 }
 
 /**
- * 构建带查询参数的 URL
+ * 设置 token
  */
-function buildUrl(url: string, params?: Record<string, string | number | undefined>): string {
-  if (!params) return `${BASE_URL}${url}`
+export function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token)
+}
 
-  const searchParams = new URLSearchParams()
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== '') {
-      searchParams.append(key, String(value))
+/**
+ * 移除 token
+ */
+export function removeToken(): void {
+  localStorage.removeItem(TOKEN_KEY)
+}
+
+/**
+ * 请求拦截器
+ */
+instance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = getToken()
+    const isWhiteListed = WHITE_LIST.some((path) => config.url?.includes(path))
+
+    // 添加 token
+    if (token && !isWhiteListed) {
+      config.headers.Authorization = `Bearer ${token}`
     }
-  })
 
-  const queryString = searchParams.toString()
-  return `${BASE_URL}${url}${queryString ? `?${queryString}` : ''}`
-}
+    return config
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error)
+  }
+)
 
 /**
- * 通用请求方法
+ * 响应拦截器
  */
-async function request<T>(url: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
-  const { params, ...fetchOptions } = options
+instance.interceptors.response.use(
+  (response: AxiosResponse<ApiResponse>) => {
+    const { data } = response
 
-  const response = await fetch(buildUrl(url, params), {
-    ...fetchOptions,
-    headers: {
-      'Content-Type': 'application/json',
-      ...fetchOptions.headers,
-    },
-  })
+    // 业务成功
+    if (data.code === 'success') {
+      return response
+    }
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+    // 业务错误
+    toast.error(data.message || 'Request failed')
+
+    return Promise.reject(new BusinessError(data.code, data.message))
+  },
+  (error: AxiosError) => {
+    // 网络错误或请求超时
+    const message = error.message === 'Network Error' ? 'Network connection failed' : 'Request timeout'
+    toast.error(message)
+    return Promise.reject(new Error(message))
   }
-
-  return response.json()
-}
+)
 
 /**
  * GET 请求
  */
-export function get<T>(url: string, params?: Record<string, string | number | undefined>): Promise<ApiResponse<T>> {
-  return request<T>(url, { method: 'GET', params })
+export function get<T>(
+  url: string,
+  params?: Record<string, string | number | boolean | undefined>
+): Promise<ApiResponse<T>> {
+  // 过滤掉 undefined 值
+  const filteredParams = params
+    ? Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))
+    : undefined
+
+  return instance.get(url, { params: filteredParams }).then((res) => res.data)
 }
 
 /**
  * POST 请求
  */
 export function post<T>(url: string, data?: unknown): Promise<ApiResponse<T>> {
-  return request<T>(url, {
-    method: 'POST',
-    body: data ? JSON.stringify(data) : undefined,
-  })
+  return instance.post(url, data).then((res) => res.data)
 }
 
 /**
  * PUT 请求
  */
 export function put<T>(url: string, data?: unknown): Promise<ApiResponse<T>> {
-  return request<T>(url, {
-    method: 'PUT',
-    body: data ? JSON.stringify(data) : undefined,
-  })
+  return instance.put(url, data).then((res) => res.data)
+}
+
+/**
+ * PATCH 请求
+ */
+export function patch<T>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+  return instance.patch(url, data).then((res) => res.data)
 }
 
 /**
  * DELETE 请求
  */
-export function del<T>(url: string): Promise<ApiResponse<T>> {
-  return request<T>(url, { method: 'DELETE' })
+export function del<T>(url: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {
+  return instance.delete(url, { params }).then((res) => res.data)
 }
+
+/**
+ * 文件上传
+ */
+export function upload<T>(url: string, file: File, fieldName = 'file'): Promise<ApiResponse<T>> {
+  const formData = new FormData()
+  formData.append(fieldName, file)
+
+  return instance
+    .post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((res) => res.data)
+}
+
+/**
+ * 文件下载
+ */
+export function download(url: string, filename: string, params?: Record<string, unknown>): Promise<void> {
+  return instance
+    .get(url, {
+      params,
+      responseType: 'blob',
+    })
+    .then((res) => {
+      const blob = new Blob([res.data])
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = filename
+      link.click()
+      URL.revokeObjectURL(link.href)
+    })
+}
+
+export default instance

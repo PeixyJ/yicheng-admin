@@ -1,3 +1,5 @@
+import type { PageParams } from './api'
+
 /**
  * 用户状态枚举
  */
@@ -36,41 +38,11 @@ export interface AdminUserVO {
 /**
  * 用户列表查询参数
  */
-export interface UserListParams {
-  /** 页码 */
-  page: number
-  /** 每页数量 */
-  size: number
+export interface UserListParams extends PageParams {
   /** 关键词（昵称/邀请码） */
   keyword?: string
   /** 用户状态 */
   status?: UserStatus
   /** 邀请人用户ID */
   invitedByUserId?: number
-}
-
-/**
- * 分页数据结构
- */
-export interface PageData<T> {
-  /** 数据列表 */
-  records: T[]
-  /** 总数 */
-  total: number
-  /** 每页数量 */
-  size: number
-  /** 当前页码 */
-  current: number
-  /** 总页数 */
-  pages: number
-}
-
-/**
- * API 响应结构
- */
-export interface ApiResponse<T> {
-  code: string
-  message: string
-  data: T
-  date: number
 }

@@ -1,5 +1,6 @@
 import { get } from '@/utils/request'
-import type { AdminUserVO, PageData, UserListParams } from '@/types/user'
+import type { PageData } from '@/types/api'
+import type { AdminUserVO, UserListParams } from '@/types/user'
 
 /**
  * 分页查询用户列表

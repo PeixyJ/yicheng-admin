@@ -1,5 +1,5 @@
 import { get } from '@/utils/request'
-import type { PageData } from '@/types/user'
+import type { PageData } from '@/types/api'
 import type { AdminTeamVO, TeamListParams } from '@/types/team'
 
 /**
