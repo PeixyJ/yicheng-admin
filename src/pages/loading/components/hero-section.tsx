@@ -5,7 +5,6 @@ import { ScrambleText } from './scramble-text'
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [time, setTime] = useState(new Date())
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -20,20 +19,6 @@ export function HeroSection() {
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    })
-  }
 
   return (
     <section
@@ -82,9 +67,6 @@ export function HeroSection() {
           <span className="font-mono text-sm text-muted-foreground tracking-wider">
             <ScrambleText text="YICHENG.ADMIN" delay={500} />
           </span>
-        </div>
-        <div className="font-mono text-sm text-muted-foreground">
-          {formatTime(time)}
         </div>
       </motion.div>
 
