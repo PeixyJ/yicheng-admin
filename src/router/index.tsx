@@ -4,6 +4,8 @@ import { createBrowserRouter } from 'react-router-dom'
 import ErrorPage from '@/pages/system/not-found'
 import LoginPage from '@/pages/system/login'
 import RegisterPage from '@/pages/system/register'
+import TermsPage from '@/pages/system/terms'
+import PrivacyPage from '@/pages/system/privacy'
 import ForgotPasswordPage from '@/pages/forgot-password'
 import LoadingPage from '@/pages/loading'
 
@@ -64,6 +66,14 @@ export const router = createBrowserRouter([
         element: <ForgotPasswordPage />,
       },
     ],
+  },
+  {
+    path: '/terms',
+    element: <TermsPage />,
+  },
+  {
+    path: '/privacy',
+    element: <PrivacyPage />,
   },
   {
     path: '*',

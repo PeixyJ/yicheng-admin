@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -27,13 +28,13 @@ const RegisterEmailOTPForm = () => {
       {/* Email */}
       <div className='space-y-1'>
         <Label className='leading-5' htmlFor='registerEmailOtp'>
-          Email address*
+          邮箱地址*
         </Label>
         <div className='flex gap-2'>
           <Input
             type='email'
             id='registerEmailOtp'
-            placeholder='Enter your email address'
+            placeholder='请输入邮箱地址'
             className='flex-1'
           />
           <Button
@@ -42,7 +43,7 @@ const RegisterEmailOTPForm = () => {
             onClick={handleSendOtp}
             disabled={isOtpSent}
           >
-            {isOtpSent ? 'Sent' : 'Send Code'}
+            {isOtpSent ? '已发送' : '发送验证码'}
           </Button>
         </div>
       </div>
@@ -50,7 +51,7 @@ const RegisterEmailOTPForm = () => {
       {/* OTP Input */}
       <div className='space-y-2'>
         <Label className='leading-5'>
-          Verification Code*
+          验证码*
         </Label>
         <div className='flex justify-center'>
           <InputOTP
@@ -72,7 +73,7 @@ const RegisterEmailOTPForm = () => {
           </InputOTP>
         </div>
         <p className='text-muted-foreground text-center text-sm'>
-          Enter the 6-digit code sent to your email
+          请输入发送至您邮箱的 6 位验证码
         </p>
       </div>
 
@@ -84,7 +85,7 @@ const RegisterEmailOTPForm = () => {
             className='text-muted-foreground hover:text-foreground text-sm hover:underline'
             onClick={handleSendOtp}
           >
-            Didn't receive the code? Resend
+            没有收到验证码？重新发送
           </button>
         </div>
       )}
@@ -93,19 +94,19 @@ const RegisterEmailOTPForm = () => {
       <div className='flex items-start gap-3'>
         <Checkbox id='agreeTermsOtp' className='mt-0.5 size-5' />
         <Label htmlFor='agreeTermsOtp' className='text-sm leading-5'>
-          I agree to the{' '}
-          <a href='#' className='text-foreground hover:underline'>
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href='#' className='text-foreground hover:underline'>
-            Privacy Policy
-          </a>
+          我已阅读并同意{' '}
+          <Link to='/terms' className='text-foreground hover:underline'>
+            服务条款
+          </Link>{' '}
+          和{' '}
+          <Link to='/privacy' className='text-foreground hover:underline'>
+            隐私政策
+          </Link>
         </Label>
       </div>
 
       <Button className='w-full' type='submit' disabled={otpValue.length !== 6}>
-        Verify & Create Account
+        验证并创建账户
       </Button>
     </form>
   )
