@@ -4,14 +4,13 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios'
-import { toast } from 'sonner'
 import { type ApiResponse, BusinessError } from '@/types/api'
 
 // Token 存储的 key
 const TOKEN_KEY = 'access_token'
 
-// 不需要 token 的白名单路径
-const WHITE_LIST = ['/v1/login/', '/v1/register/', '/v1/auth/']
+// 不需要 token 的白名单路径（精确匹配）
+const WHITE_LIST = ['/v1/login', '/v1/register', '/v1/auth/']
 
 /**
  * 创建 axios 实例
@@ -51,7 +50,7 @@ export function removeToken(): void {
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getToken()
-    const isWhiteListed = WHITE_LIST.some((path) => config.url?.includes(path))
+    const isWhiteListed = WHITE_LIST.some((path) => config.url === path)
 
     // 添加 token
     if (token && !isWhiteListed) {
@@ -77,15 +76,12 @@ instance.interceptors.response.use(
       return response
     }
 
-    // 业务错误
-    toast.error(data.message || 'Request failed')
-
+    // 业务错误 - 由调用方处理错误显示
     return Promise.reject(new BusinessError(data.code, data.message))
   },
   (error: AxiosError) => {
-    // 网络错误或请求超时
+    // 网络错误或请求超时 - 由调用方处理错误显示
     const message = error.message === 'Network Error' ? 'Network connection failed' : 'Request timeout'
-    toast.error(message)
     return Promise.reject(new Error(message))
   }
 )

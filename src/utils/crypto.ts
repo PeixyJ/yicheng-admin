@@ -1,0 +1,19 @@
+/**
+ * 使用 SHA256 对字符串进行哈希
+ */
+export async function sha256(message: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(message)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  return hashHex
+}
+
+/**
+ * 对密码进行加密处理
+ * 使用 SHA256 哈希
+ */
+export async function encryptPassword(password: string): Promise<string> {
+  return sha256(password)
+}
