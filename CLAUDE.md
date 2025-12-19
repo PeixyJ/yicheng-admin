@@ -30,17 +30,48 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 ```
 
-## 路由配置
+## 菜单与路由配置
 
-路由配置位于 `src/router/index.tsx`，使用 React Router 的 `createBrowserRouter`：
+菜单和路由使用统一的 JSON 配置，位于 `src/constants/menu.tsx`：
 
 ```tsx
-// 添加新路由
-{
-  path: 'users',
-  element: <Users />,
+// 菜单配置结构
+export const menuConfig: MenuConfig = {
+  groups: [
+    {
+      id: 'platform',
+      label: 'Platform',
+      items: [
+        {
+          id: 'playground',
+          title: 'Playground',
+          path: '/dashboard/playground',
+          icon: SquareTerminal,
+          isActive: true,
+          children: [
+            { id: 'history', title: 'History', path: '/dashboard/playground/history' },
+          ],
+        },
+      ],
+    },
+  ],
 }
 ```
+
+**添加新菜单项：**
+
+1. 在 `src/constants/menu.tsx` 的 `menuConfig.groups` 中添加菜单项
+2. 如果需要页面，在菜单项中添加 `element` 属性（使用懒加载）
+3. 侧边栏菜单和路由会自动同步
+
+**相关文件：**
+
+- `src/types/menu.ts` - 菜单类型定义
+- `src/constants/menu.tsx` - 菜单配置
+- `src/utils/menu.tsx` - 菜单工具函数（menuToRoutes, findMenuItemByPath 等）
+- `src/router/index.tsx` - 路由配置（自动从 menuConfig 生成）
+
+> 详细配置指南见 [docs/menu.md](docs/menu.md)
 
 ## 项目结构
 
@@ -60,6 +91,46 @@ src/
 ├── styles/          # 全局样式
 ├── types/           # TypeScript 类型定义
 └── utils/           # 工具函数
+```
+
+## 组件目录规范
+
+所有组件（layouts、pages、components）统一使用文件夹结构，通过 `index.tsx` 暴露主组件，子组件放在同级 `components/` 目录下：
+
+```
+component-name/
+├── index.tsx           # 主组件入口
+└── components/         # 子组件目录
+    ├── sub-component-a.tsx
+    └── sub-component-b.tsx
+```
+
+示例：
+
+```
+src/layouts/menu-layout/
+├── index.tsx
+└── components/
+    ├── app-sidebar.tsx
+    ├── nav-main.tsx
+    └── nav-user.tsx
+
+src/pages/login/
+├── index.tsx
+└── components/
+    ├── login-email-password.tsx
+    └── login-email-otp.tsx
+```
+
+导入方式：
+
+```tsx
+// 导入主组件（自动查找 index.tsx）
+import MenuLayout from '@/layouts/menu-layout'
+import LoginPage from '@/pages/login'
+
+// 在组件内部导入子组件
+import { AppSidebar } from './components/app-sidebar'
 ```
 
 ## 路径别名

@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
 
-import { AppSidebar } from '@/components/app-sidebar'
+import { AppSidebar } from './components/app-sidebar'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -12,7 +12,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
-const AdminLayout = () => {
+const MenuLayout = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -42,4 +42,4 @@ const AdminLayout = () => {
   )
 }
 
-export default AdminLayout
+export default MenuLayout
