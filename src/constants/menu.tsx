@@ -1,11 +1,15 @@
 import {
-  SquareTerminal,
-  Bot,
-  BookOpen,
-  Settings2,
-  Frame,
-  PieChart,
-  Map,
+  LayoutDashboard,
+  Users,
+  UsersRound,
+  CreditCard,
+  Coins,
+  Wallet,
+  Megaphone,
+  Bell,
+  MessageSquareText,
+  ShieldCheck,
+  Settings,
 } from 'lucide-react'
 import type { MenuConfig } from '@/types/menu'
 
@@ -15,138 +19,116 @@ import { lazy } from 'react'
 const DashboardPage = lazy(() => import('@/pages/dashboard'))
 // 根据需要添加更多页面的懒加载
 
+/**
+ * 菜单配置
+ * 按业务优先级排序：
+ * 1. 仪表盘 - 首页概览
+ * 2. 用户管理 - 核心用户数据
+ * 3. 团队管理 - 用户组织管理
+ * 4. 订阅管理 - 商业模式核心
+ * 5. 点数管理 - 资源/配额管理
+ * 6. 支付管理 - 财务交易
+ * 7. 营销管理 - 业务增长
+ * 8. 通知管理 - 系统运营
+ * 9. 反馈管理 - 用户反馈收集
+ * 10. 管理员管理 - 系统后台管理
+ * 11. 系统设置 - 系统配置
+ */
 export const menuConfig: MenuConfig = {
   groups: [
     {
-      id: 'platform',
-      label: 'Platform',
+      id: 'main',
+      label: '主菜单',
       items: [
         {
-          id: 'playground',
-          title: 'Playground',
-          path: '/dashboard/playground',
-          icon: SquareTerminal,
-          isActive: true,
-          children: [
-            {
-              id: 'history',
-              title: 'History',
-              path: '/dashboard/playground/history',
-            },
-            {
-              id: 'starred',
-              title: 'Starred',
-              path: '/dashboard/playground/starred',
-            },
-            {
-              id: 'settings',
-              title: 'Settings',
-              path: '/dashboard/playground/settings',
-            },
-          ],
-        },
-        {
-          id: 'models',
-          title: 'Models',
-          path: '/dashboard/models',
-          icon: Bot,
-          children: [
-            {
-              id: 'genesis',
-              title: 'Genesis',
-              path: '/dashboard/models/genesis',
-            },
-            {
-              id: 'explorer',
-              title: 'Explorer',
-              path: '/dashboard/models/explorer',
-            },
-            {
-              id: 'quantum',
-              title: 'Quantum',
-              path: '/dashboard/models/quantum',
-            },
-          ],
-        },
-        {
-          id: 'documentation',
-          title: 'Documentation',
-          path: '/dashboard/documentation',
-          icon: BookOpen,
-          children: [
-            {
-              id: 'introduction',
-              title: 'Introduction',
-              path: '/dashboard/documentation/introduction',
-            },
-            {
-              id: 'get-started',
-              title: 'Get Started',
-              path: '/dashboard/documentation/get-started',
-            },
-            {
-              id: 'tutorials',
-              title: 'Tutorials',
-              path: '/dashboard/documentation/tutorials',
-            },
-            {
-              id: 'changelog',
-              title: 'Changelog',
-              path: '/dashboard/documentation/changelog',
-            },
-          ],
-        },
-        {
-          id: 'settings',
-          title: 'Settings',
-          path: '/dashboard/settings',
-          icon: Settings2,
-          children: [
-            {
-              id: 'general',
-              title: 'General',
-              path: '/dashboard/settings/general',
-            },
-            {
-              id: 'team',
-              title: 'Team',
-              path: '/dashboard/settings/team',
-            },
-            {
-              id: 'billing',
-              title: 'Billing',
-              path: '/dashboard/settings/billing',
-            },
-            {
-              id: 'limits',
-              title: 'Limits',
-              path: '/dashboard/settings/limits',
-            },
-          ],
+          id: 'dashboard',
+          title: '仪表盘',
+          path: '/dashboard',
+          icon: LayoutDashboard,
         },
       ],
     },
     {
-      id: 'projects',
-      label: 'Projects',
+      id: 'user-management',
+      label: '用户与团队',
       items: [
         {
-          id: 'design-engineering',
-          title: 'Design Engineering',
-          path: '/dashboard/projects/design-engineering',
-          icon: Frame,
+          id: 'users',
+          title: '用户管理',
+          path: '/dashboard/users',
+          icon: Users,
         },
         {
-          id: 'sales-marketing',
-          title: 'Sales & Marketing',
-          path: '/dashboard/projects/sales-marketing',
-          icon: PieChart,
+          id: 'teams',
+          title: '团队管理',
+          path: '/dashboard/teams',
+          icon: UsersRound,
+        },
+      ],
+    },
+    {
+      id: 'business',
+      label: '业务管理',
+      items: [
+        {
+          id: 'subscriptions',
+          title: '订阅管理',
+          path: '/dashboard/subscriptions',
+          icon: CreditCard,
         },
         {
-          id: 'travel',
-          title: 'Travel',
-          path: '/dashboard/projects/travel',
-          icon: Map,
+          id: 'credits',
+          title: '点数管理',
+          path: '/dashboard/credits',
+          icon: Coins,
+        },
+        {
+          id: 'payments',
+          title: '支付管理',
+          path: '/dashboard/payments',
+          icon: Wallet,
+        },
+      ],
+    },
+    {
+      id: 'operations',
+      label: '运营管理',
+      items: [
+        {
+          id: 'marketing',
+          title: '营销管理',
+          path: '/dashboard/marketing',
+          icon: Megaphone,
+        },
+        {
+          id: 'notifications',
+          title: '通知管理',
+          path: '/dashboard/notifications',
+          icon: Bell,
+        },
+        {
+          id: 'feedback',
+          title: '反馈管理',
+          path: '/dashboard/feedback',
+          icon: MessageSquareText,
+        },
+      ],
+    },
+    {
+      id: 'system',
+      label: '系统管理',
+      items: [
+        {
+          id: 'admins',
+          title: '管理员管理',
+          path: '/dashboard/admins',
+          icon: ShieldCheck,
+        },
+        {
+          id: 'settings',
+          title: '系统设置',
+          path: '/dashboard/settings',
+          icon: Settings,
         },
       ],
     },
