@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
-import ErrorPage from '@/pages/not-found'
-import LoginPage from '@/pages/login'
-import RegisterPage from '@/pages/register'
+import ErrorPage from '@/pages/system/not-found'
+import LoginPage from '@/pages/system/login'
+import RegisterPage from '@/pages/system/register'
 import ForgotPasswordPage from '@/pages/forgot-password'
 import LoadingPage from '@/pages/loading'
 
