@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { UserSearch } from './components/user-search'
 import { UserTable } from './components/user-table'
+import { UserDetailSheet } from './components/user-detail-sheet'
 import { Pagination } from '@/components/pagination'
 import { getUserList } from '@/services/user'
 import type { AdminUserVO, UserStatus } from '@/types/user'
@@ -12,6 +13,10 @@ const UsersPage = () => {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
+
+  // 用户详情
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
 
   // 搜索条件
   const [keyword, setKeyword] = useState('')
@@ -61,6 +66,11 @@ const UsersPage = () => {
     setPageSize(newPageSize)
   }
 
+  const handleUserClick = (userId: number) => {
+    setSelectedUserId(userId)
+    setDetailOpen(true)
+  }
+
   return (
     <div className='flex flex-1 flex-col gap-4'>
       <h1 className='text-2xl font-semibold'>用户管理</h1>
@@ -76,13 +86,20 @@ const UsersPage = () => {
         onReset={handleReset}
       />
 
-      <UserTable users={users} loading={loading} />
+      <UserTable users={users} loading={loading} onUserClick={handleUserClick} />
 
       <Pagination
         current={page}
         total={total}
         pageSize={pageSize}
         onChange={handlePageChange}
+      />
+
+      <UserDetailSheet
+        userId={selectedUserId}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        onUserUpdated={fetchUsers}
       />
     </div>
   )

@@ -9,86 +9,84 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { TeamStatus, TeamType } from '@/types/team'
+import type { FeatureType } from '@/types/feature'
 
-interface TeamSearchProps {
-  keyword: string
-  teamType: TeamType | ''
-  status: TeamStatus | ''
-  ownerId: string
-  onKeywordChange: (value: string) => void
-  onTeamTypeChange: (value: TeamType | '') => void
-  onStatusChange: (value: TeamStatus | '') => void
-  onOwnerIdChange: (value: string) => void
+interface FeatureSearchProps {
+  featureName: string
+  featureCode: string
+  featureType: FeatureType | ''
+  status: boolean | ''
+  onFeatureNameChange: (value: string) => void
+  onFeatureCodeChange: (value: string) => void
+  onFeatureTypeChange: (value: FeatureType | '') => void
+  onStatusChange: (value: boolean | '') => void
   onSearch: () => void
   onReset: () => void
 }
 
-export function TeamSearch({
-  keyword,
-  teamType,
+export function FeatureSearch({
+  featureName,
+  featureCode,
+  featureType,
   status,
-  ownerId,
-  onKeywordChange,
-  onTeamTypeChange,
+  onFeatureNameChange,
+  onFeatureCodeChange,
+  onFeatureTypeChange,
   onStatusChange,
-  onOwnerIdChange,
   onSearch,
   onReset,
-}: TeamSearchProps) {
+}: FeatureSearchProps) {
   return (
     <div className='flex items-center justify-between gap-4'>
       <div className='flex items-center gap-3'>
-        {/* 关键词搜索 */}
+        {/* 功能名称搜索 */}
         <div className='relative'>
           <Search className='absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground' />
           <Input
-            placeholder='搜索团队名称或编码'
-            value={keyword}
-            onChange={(e) => onKeywordChange(e.target.value)}
+            placeholder='功能名称'
+            value={featureName}
+            onChange={(e) => onFeatureNameChange(e.target.value)}
             className='w-52 pl-10'
           />
         </div>
 
-        {/* 团队类型 */}
+        {/* 功能编码搜索 */}
+        <Input
+          placeholder='功能编码'
+          value={featureCode}
+          onChange={(e) => onFeatureCodeChange(e.target.value)}
+          className='w-52'
+        />
+
+        {/* 功能类型 */}
         <Select
-          value={teamType || 'all'}
-          onValueChange={(v) => onTeamTypeChange(v === 'all' ? '' : (v as TeamType))}
+          value={featureType || 'all'}
+          onValueChange={(v) => onFeatureTypeChange(v === 'all' ? '' : (v as FeatureType))}
         >
           <SelectTrigger className='w-28'>
             <SelectValue placeholder='全部类型' />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value='all'>全部类型</SelectItem>
-            <SelectItem value='PERSONAL'>个人团队</SelectItem>
-            <SelectItem value='TEAM'>协作团队</SelectItem>
+            <SelectItem value='BOOLEAN'>开关型</SelectItem>
+            <SelectItem value='POINTS'>计量型</SelectItem>
           </SelectContent>
         </Select>
 
-        {/* 团队状态 */}
+        {/* 启用状态 */}
         <Select
-          value={status || 'all'}
-          onValueChange={(v) => onStatusChange(v === 'all' ? '' : (v as TeamStatus))}
+          value={status === '' ? 'all' : String(status)}
+          onValueChange={(v) => onStatusChange(v === 'all' ? '' : v === 'true')}
         >
           <SelectTrigger className='w-28'>
             <SelectValue placeholder='全部状态' />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value='all'>全部状态</SelectItem>
-            <SelectItem value='PENDING'>待激活</SelectItem>
-            <SelectItem value='ACTIVE'>正常</SelectItem>
-            <SelectItem value='SUSPENDED'>已冻结</SelectItem>
-            <SelectItem value='DISBANDED'>已解散</SelectItem>
+            <SelectItem value='true'>已启用</SelectItem>
+            <SelectItem value='false'>已禁用</SelectItem>
           </SelectContent>
         </Select>
-
-        {/* 所有者ID */}
-        <Input
-          placeholder='所有者ID'
-          value={ownerId}
-          onChange={(e) => onOwnerIdChange(e.target.value)}
-          className='w-28'
-        />
       </div>
 
       {/* 操作按钮 */}

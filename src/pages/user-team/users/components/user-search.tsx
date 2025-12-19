@@ -42,6 +42,7 @@ export function UserSearch({
             placeholder='搜索昵称或邀请码'
             value={keyword}
             onChange={(e) => onKeywordChange(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && onSearch()}
             className='w-52 pl-10'
           />
         </div>
@@ -51,6 +52,7 @@ export function UserSearch({
           placeholder='邀请人ID'
           value={invitedByUserId}
           onChange={(e) => onInvitedByUserIdChange(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && onSearch()}
           className='w-28'
         />
 
