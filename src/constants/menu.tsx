@@ -9,6 +9,7 @@ import {
     Coins,
     PackageOpen,
     History,
+    ArrowLeftRight,
     Wallet,
     ShoppingCart,
     UserCheck,
@@ -36,8 +37,10 @@ const FeaturesPage = lazy(() => import('@/pages/business/subscription/features')
 const PlansPage = lazy(() => import('@/pages/business/subscription/plans'))
 const SubscriptionsPage = lazy(() => import('@/pages/business/subscription/subscriptions'))
 const ResourcePacksPage = lazy(() => import('@/pages/business/subscription/resource-packs'))
+const ExtensionRecordsPage = lazy(() => import('@/pages/business/subscription/extension-records'))
 const CreditPackagesPage = lazy(() => import('@/pages/business/credits/packages'))
 const CreditRecordsPage = lazy(() => import('@/pages/business/credits/records'))
+const CreditTransactionsPage = lazy(() => import('@/pages/business/credits/transactions'))
 const PaymentOrdersPage = lazy(() => import('@/pages/business/payments/orders'))
 const PaymentCustomersPage = lazy(() => import('@/pages/business/payments/customers'))
 const WebhooksPage = lazy(() => import('@/pages/business/payments/webhooks'))
@@ -132,7 +135,15 @@ export const menuConfig: MenuConfig = {
                             path: '/dashboard/resource-packs',
                             icon: Package,
                             element: <ResourcePacksPage/>,
-                        },]
+                        },
+                        {
+                            id: 'extension-records',
+                            title: '资源扩展记录',
+                            path: '/dashboard/extension-records',
+                            icon: PackageOpen,
+                            element: <ExtensionRecordsPage/>,
+                        },
+                    ]
                 },
                 {
                     id: 'credits',
@@ -146,6 +157,13 @@ export const menuConfig: MenuConfig = {
                             path: '/dashboard/credit-records',
                             icon: History,
                             element: <CreditRecordsPage/>,
+                        },
+                        {
+                            id: 'credit-transactions',
+                            title: '点数交易记录',
+                            path: '/dashboard/credit-transactions',
+                            icon: ArrowLeftRight,
+                            element: <CreditTransactionsPage/>,
                         },
                         {
                             id: 'credit-packages',

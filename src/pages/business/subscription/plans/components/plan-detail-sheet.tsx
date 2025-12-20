@@ -14,6 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { AssignFeatureDialog } from './assign-feature-dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -384,6 +385,16 @@ export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: P
               {/* Features Tab */}
               <TabsContent value='features' className='mt-0 p-6'>
                 <div className='space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <h4 className='text-sm font-medium'>已关联功能</h4>
+                    {plan && (
+                      <AssignFeatureDialog
+                        planId={plan.id}
+                        existingFeatureIds={features.map((f) => f.id)}
+                        onSuccess={loadFeatures}
+                      />
+                    )}
+                  </div>
                   <div className='rounded-lg border'>
                     <Table>
                       <TableHeader>

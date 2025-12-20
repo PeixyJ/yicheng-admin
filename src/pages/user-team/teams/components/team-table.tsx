@@ -84,7 +84,7 @@ export function TeamTable({ teams, loading, onTeamClick }: TeamTableProps) {
             <TableHead>团队</TableHead>
             <TableHead>类型</TableHead>
             <TableHead>团队编码</TableHead>
-            <TableHead>订阅计划</TableHead>
+            <TableHead>计划编码</TableHead>
             <TableHead>所有者</TableHead>
             <TableHead>可用点数</TableHead>
             <TableHead>当日配额</TableHead>
@@ -177,7 +177,16 @@ export function TeamTable({ teams, loading, onTeamClick }: TeamTableProps) {
                     <CopyButton text={team.teamCode} />
                   </div>
                 </TableCell>
-                <TableCell>{team.currentPlanNameZh || '-'}</TableCell>
+                <TableCell>
+                  {team.currentPlanCode ? (
+                    <div className='group flex items-center gap-1'>
+                      <code className='rounded bg-muted px-1.5 py-0.5 text-sm'>
+                        {team.currentPlanCode}
+                      </code>
+                      <CopyButton text={team.currentPlanCode} />
+                    </div>
+                  ) : '-'}
+                </TableCell>
                 <TableCell>
                   <div className='group flex items-center gap-2'>
                     <Avatar className='size-6'>
