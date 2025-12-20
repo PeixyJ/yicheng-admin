@@ -64,6 +64,7 @@ export function UserTable({ users, loading, onUserClick }: UserTableProps) {
             <TableHead>邀请码</TableHead>
             <TableHead>邀请人</TableHead>
             <TableHead>状态</TableHead>
+            <TableHead>备注</TableHead>
             <TableHead>创建时间</TableHead>
           </TableRow>
         </TableHeader>
@@ -90,13 +91,16 @@ export function UserTable({ users, loading, onUserClick }: UserTableProps) {
                   <Skeleton className='h-5 w-12' />
                 </TableCell>
                 <TableCell>
+                  <Skeleton className='h-4 w-24' />
+                </TableCell>
+                <TableCell>
                   <Skeleton className='h-4 w-32' />
                 </TableCell>
               </TableRow>
             ))
           ) : users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className='h-24 text-center text-muted-foreground'>
+              <TableCell colSpan={7} className='h-24 text-center text-muted-foreground'>
                 暂无数据
               </TableCell>
             </TableRow>
@@ -140,6 +144,11 @@ export function UserTable({ users, loading, onUserClick }: UserTableProps) {
                 </TableCell>
                 <TableCell>{user.inviterNickname || '-'}</TableCell>
                 <TableCell>{getStatusBadge(user.status)}</TableCell>
+                <TableCell>
+                  <span className='text-sm text-muted-foreground line-clamp-1' title={user.remark || undefined}>
+                    {user.remark || '-'}
+                  </span>
+                </TableCell>
                 <TableCell>{user.createTime}</TableCell>
               </TableRow>
             ))

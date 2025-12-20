@@ -31,6 +31,8 @@ export interface AdminUserVO {
   suspendedAt: string | null
   /** 封禁截止时间 */
   suspendedUntil: string | null
+  /** 管理员备注 */
+  remark: string | null
   /** 创建时间 */
   createTime: string
 }
@@ -243,6 +245,64 @@ export interface AdminUserOperationLogVO {
   durationMs: number
   /** 客户端IP */
   clientIp: string
+  /** 创建时间 */
+  createTime: string
+}
+
+/**
+ * 用户团队 VO
+ */
+export interface AdminUserTeamVO {
+  /** 团队ID */
+  teamId: number
+  /** 团队编码 */
+  teamCode: string
+  /** 团队名称 */
+  teamName: string
+  /** 团队Logo */
+  logoUrl: string | null
+  /** 团队状态 */
+  status: string
+  /** 状态描述 */
+  statusDesc: string | null
+  /** 当前订阅计划编码 */
+  currentPlanCode: string | null
+  /** 当前计划名称 */
+  currentPlanName: string | null
+  /** 订阅到期时间 */
+  subscriptionEndTime: string | null
+  /** 成员角色 */
+  role: string
+  /** 角色描述 */
+  roleDesc: string
+  /** 加入时间 */
+  joinedTime: string
+  /** 团队创建时间 */
+  teamCreateTime: string
+}
+
+/**
+ * 用户账户 VO
+ */
+export interface UserAccountVO {
+  /** 主键ID */
+  id: number
+  /** 账号类型 */
+  accountType: string
+  /** 账号类型描述 */
+  accountTypeDesc: string
+  /** 账号标识（邮箱/手机号，脱敏显示） */
+  identifier: string
+  /** 是否已验证 */
+  verified: boolean
+  /** 验证时间 */
+  verifiedAt: string | null
+  /** 是否已设置密码 */
+  hasPassword: boolean
+  /** 最后登录时间 */
+  lastLoginTime: string | null
+  /** 账号状态 */
+  status: boolean
   /** 创建时间 */
   createTime: string
 }

@@ -1,4 +1,4 @@
-import { get, put, upload } from '@/utils/request'
+import { get, put, upload, del } from '@/utils/request'
 import type { PageData } from '@/types/api'
 import type {
   AdminUserVO,
@@ -6,6 +6,8 @@ import type {
   AdminUserDeviceVO,
   AdminUserLoginRecordVO,
   AdminUserOperationLogVO,
+  AdminUserTeamVO,
+  UserAccountVO,
   UserListParams,
   SuspendUserRequest,
   UpdateUserRemarkRequest,
@@ -78,4 +80,25 @@ export function getUserOperationLogs(id: number, page: number, size: number) {
  */
 export function uploadUserAvatar(id: number, file: File) {
   return upload<string>(`/v1/user/${id}/avatar`, file)
+}
+
+/**
+ * 获取用户的团队列表
+ */
+export function getUserTeams(id: number) {
+  return get<AdminUserTeamVO[]>(`/v1/user/${id}/teams`)
+}
+
+/**
+ * 删除用户
+ */
+export function deleteUser(id: number) {
+  return del<void>(`/v1/user/${id}`)
+}
+
+/**
+ * 获取用户账户列表
+ */
+export function getUserAccounts(id: number) {
+  return get<UserAccountVO[]>(`/v1/user/${id}/accounts`)
 }
