@@ -49,6 +49,9 @@ const CouponTemplatesPage = lazy(() => import('@/pages/operations/marketing/coup
 const CouponsPage = lazy(() => import('@/pages/operations/marketing/coupons'))
 const NotificationTemplatesPage = lazy(() => import('@/pages/operations/notifications/templates'))
 const NotificationRecordsPage = lazy(() => import('@/pages/operations/notifications/records'))
+const FeedbackPage = lazy(() => import('@/pages/user-feedback/feedback'))
+const AdminsPage = lazy(() => import('@/pages/system/admins'))
+const SettingsPage = lazy(() => import('@/pages/system/settings'))
 
 /**
  * 菜单配置
@@ -265,6 +268,7 @@ export const menuConfig: MenuConfig = {
                     title: '反馈管理',
                     path: '/dashboard/feedback',
                     icon: MessageSquareText,
+                    element: <FeedbackPage/>,
                 },
             ],
         },
@@ -277,12 +281,14 @@ export const menuConfig: MenuConfig = {
                     title: '管理员管理',
                     path: '/dashboard/admins',
                     icon: ShieldCheck,
+                    element: <AdminsPage/>,
                 },
                 {
                     id: 'settings',
                     title: '系统设置',
                     path: '/dashboard/settings',
                     icon: Settings,
+                    element: <SettingsPage/>,
                 },
             ],
         },
