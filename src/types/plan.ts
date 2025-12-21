@@ -126,6 +126,8 @@ export interface SubscribeVO {
   grantUserId: number | null
   /** 赠送原因 */
   grantReason: string | null
+  /** 团队名称 */
+  teamName: string | null
 }
 
 /**

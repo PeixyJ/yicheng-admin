@@ -1,4 +1,4 @@
-import { get, post, put, upload } from '@/utils/request'
+import { get, post, put, upload, del } from '@/utils/request'
 import type { PageData } from '@/types/api'
 import type {
   AdminTeamVO,
@@ -119,4 +119,18 @@ export function uploadTeamLogo(id: number, file: File) {
  */
 export function getTeamMembers(id: number) {
   return get<AdminTeamMemberVO[]>(`/v1/team/${id}/members`)
+}
+
+/**
+ * 邀请用户加入团队
+ */
+export function inviteTeamMember(id: number, userId: number) {
+  return post<void>(`/v1/team/${id}/members`, { userId })
+}
+
+/**
+ * 移除团队成员
+ */
+export function removeTeamMember(id: number, memberId: number) {
+  return del<void>(`/v1/team/${id}/members/${memberId}`)
 }

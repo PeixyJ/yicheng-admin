@@ -28,14 +28,14 @@ import { getFeatureList } from '@/services/feature'
 import { assignFeaturesToPlan } from '@/services/plan'
 import type { FeatureVO, FeatureType } from '@/types/feature'
 
-function getFeatureTypeLabel(type: FeatureType) {
+function getFeatureTypeLabel(type: FeatureType | undefined | null) {
   switch (type) {
     case 'BOOLEAN':
       return '开关型'
     case 'POINTS':
       return '计量型'
     default:
-      return type
+      return type || '-'
   }
 }
 
@@ -248,7 +248,7 @@ export function AssignFeatureDialog({
                               : 'secondary'
                           }
                         >
-                          {feature.featureTypeName || getFeatureTypeLabel(feature.featureType)}
+                          {getFeatureTypeLabel(feature.featureType)}
                         </Badge>
                       </TableCell>
                       <TableCell>{feature.pointsCost ?? '-'}</TableCell>

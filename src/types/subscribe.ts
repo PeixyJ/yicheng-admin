@@ -8,6 +8,10 @@ export interface AdminSubscribeVO {
   id: number
   /** 团队ID */
   teamId: number
+  /** 团队名称 */
+  teamName: string | null
+  /** 团队Logo */
+  teamLogoUrl: string | null
   /** 计划ID */
   planId: number
   /** 计划编码 */
@@ -30,6 +34,10 @@ export interface AdminSubscribeVO {
   previousSubscriptionId: number | null
   /** 赠送操作的管理员ID */
   grantUserId: number | null
+  /** 赠送操作人编号 */
+  grantUserNo: string | null
+  /** 赠送操作人昵称 */
+  grantUserNickname: string | null
   /** 赠送原因 */
   grantReason: string | null
 }

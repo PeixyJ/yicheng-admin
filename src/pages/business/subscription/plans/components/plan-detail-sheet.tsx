@@ -4,6 +4,7 @@ import {
   Check,
   Copy,
   Package,
+  Pencil,
   Star,
   Users,
 } from 'lucide-react'
@@ -15,6 +16,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { AssignFeatureDialog } from './assign-feature-dialog'
+import { EditPlanDialog } from './edit-plan-dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -40,6 +42,7 @@ import type {
   FeatureVO,
   SubscribeVO,
   PlanType,
+  FeatureType,
   SubscribeStatus,
   SubscribeSource,
 } from '@/types/plan'
@@ -133,10 +136,22 @@ function formatPrice(price: number, currency: string) {
   return `${price.toFixed(2)} ${currency}`
 }
 
+function getFeatureTypeLabel(type: FeatureType | undefined | null) {
+  switch (type) {
+    case 'BOOLEAN':
+      return '开关型'
+    case 'POINTS':
+      return '计量型'
+    default:
+      return type || '-'
+  }
+}
+
 export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: PlanDetailSheetProps) {
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState<SubscribePlanVO | null>(null)
   const [activeTab, setActiveTab] = useState('info')
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   // 功能列表
   const [features, setFeatures] = useState<FeatureVO[]>([])
@@ -244,7 +259,13 @@ export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: P
     setSubscribesPageSize(pageSize)
   }
 
+  const handleEditSuccess = () => {
+    loadPlanDetail()
+    onPlanUpdated?.()
+  }
+
   return (
+    <>
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='w-full max-w-3xl overflow-y-auto p-0 sm:max-w-3xl'>
         <SheetHeader className='border-b px-6 py-4'>
@@ -282,6 +303,14 @@ export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: P
                     <Badge variant={plan.status ? 'default' : 'secondary'}>
                       {plan.status ? '启用' : '禁用'}
                     </Badge>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='size-8'
+                      onClick={() => setEditDialogOpen(true)}
+                    >
+                      <Pencil className='size-4' />
+                    </Button>
                   </div>
                   <div className='mt-1 flex items-center gap-2 text-sm text-muted-foreground'>
                     <span>ID: {plan.id}</span>
@@ -436,7 +465,7 @@ export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: P
                               </TableCell>
                               <TableCell>
                                 <Badge variant={feature.featureType === 'BOOLEAN' ? 'outline' : 'secondary'}>
-                                  {feature.featureTypeName}
+                                  {getFeatureTypeLabel(feature.featureType)}
                                 </Badge>
                               </TableCell>
                               <TableCell>{feature.pointsCost ?? '-'}</TableCell>
@@ -472,7 +501,7 @@ export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: P
                       <TableHeader>
                         <TableRow>
                           <TableHead>订阅ID</TableHead>
-                          <TableHead>团队ID</TableHead>
+                          <TableHead>团队</TableHead>
                           <TableHead>状态</TableHead>
                           <TableHead>来源</TableHead>
                           <TableHead>席位</TableHead>
@@ -504,9 +533,12 @@ export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: P
                             <TableRow key={subscribe.id}>
                               <TableCell className='font-medium'>{subscribe.id}</TableCell>
                               <TableCell>
-                                <div className='flex items-center gap-1'>
+                                <div className='flex items-center gap-2'>
                                   <Users className='size-4 text-muted-foreground' />
-                                  {subscribe.teamId}
+                                  <div>
+                                    <div className='font-medium'>{subscribe.teamName || '-'}</div>
+                                    <div className='text-xs text-muted-foreground'>ID: {subscribe.teamId}</div>
+                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell>{getSubscribeStatusBadge(subscribe.status)}</TableCell>
@@ -549,5 +581,15 @@ export function PlanDetailSheet({ planId, open, onOpenChange, onPlanUpdated }: P
         ) : null}
       </SheetContent>
     </Sheet>
+
+    {plan && (
+      <EditPlanDialog
+        plan={plan}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSuccess={handleEditSuccess}
+      />
+    )}
+    </>
   )
 }

@@ -94,14 +94,6 @@ export interface AdminTeamDetailVO {
   status: TeamStatus
   /** 状态描述 */
   statusDesc: string
-  /** 当前订阅计划编码 */
-  currentPlanCode: string | null
-  /** 当前计划中文名称 */
-  currentPlanNameZh: string | null
-  /** 当前计划英文名称 */
-  currentPlanNameEn: string | null
-  /** 订阅到期时间 */
-  subscriptionEndTime: string | null
   /** Stripe客户ID */
   stripeCustomerId: string | null
   /** 所有者用户ID */
@@ -112,6 +104,14 @@ export interface AdminTeamDetailVO {
   ownerAvatarUrl: string | null
   /** 团队成员数量 */
   memberCount: number
+  /** 当前订阅计划编码 */
+  currentPlanCode: string | null
+  /** 当前计划名称 */
+  currentPlanName: string | null
+  /** 订阅开始时间 */
+  subscriptionStartTime: string | null
+  /** 订阅到期时间 */
+  subscriptionEndTime: string | null
   /** 解散时间 */
   disbandedAt: string | null
   /** 解散操作人ID */
@@ -123,7 +123,7 @@ export interface AdminTeamDetailVO {
   /** 创建时间 */
   createTime: string
   /** 更新时间 */
-  updateTime: string
+  updateTime: string | null
 }
 
 /**

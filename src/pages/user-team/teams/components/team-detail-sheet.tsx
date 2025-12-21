@@ -6,10 +6,15 @@ import {
   Camera,
   Check,
   Copy,
+  LoaderCircle,
   Mail,
+  Search,
   Trash2,
   Unlock,
+  UserMinus,
+  UserPlus,
   Users,
+  X,
 } from 'lucide-react'
 
 import {
@@ -33,7 +38,6 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -41,6 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
 
 import {
   getTeamDetail,
@@ -54,7 +59,11 @@ import {
   disbandTeam,
   transferTeam,
   uploadTeamLogo,
+  inviteTeamMember,
+  removeTeamMember,
 } from '@/services/team'
+import { getUserList } from '@/services/user'
+import type { AdminUserVO } from '@/types/user'
 import type {
   AdminTeamDetailVO,
   AdminTeamQuotaVO,
@@ -178,22 +187,35 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false)
   const [disbandDialogOpen, setDisbandDialogOpen] = useState(false)
   const [transferDialogOpen, setTransferDialogOpen] = useState(false)
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false)
   const [reason, setReason] = useState('')
   const [transferUserId, setTransferUserId] = useState('')
   const [transferSelfRole, setTransferSelfRole] = useState<TransferSelfRole>('ADMIN')
   const [submitting, setSubmitting] = useState(false)
 
+  // 邀请成员相关状态
+  const [inviteUserKeyword, setInviteUserKeyword] = useState('')
+  const [inviteUsers, setInviteUsers] = useState<AdminUserVO[]>([])
+  const [selectedInviteUser, setSelectedInviteUser] = useState<AdminUserVO | null>(null)
+  const [isSearchingInviteUser, setIsSearchingInviteUser] = useState(false)
+
+  // 移除成员相关状态
+  const [memberToRemove, setMemberToRemove] = useState<AdminTeamMemberVO | null>(null)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const inviteSearchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (open && teamId) {
       loadTeamDetail()
-      loadQuotas()
     }
   }, [open, teamId])
 
   useEffect(() => {
-    if (open && teamId && activeTab === 'invitations') {
+    if (open && teamId && activeTab === 'quota') {
+      loadQuotas()
+    } else if (open && teamId && activeTab === 'invitations') {
       loadInvitations()
     } else if (open && teamId && activeTab === 'transfers') {
       loadTransfers()
@@ -201,6 +223,46 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
       loadMembers()
     }
   }, [activeTab, open, teamId])
+
+  useEffect(() => {
+    if (transferDialogOpen && teamId) {
+      loadMembers()
+    }
+  }, [transferDialogOpen, teamId])
+
+  // 搜索邀请用户（防抖）
+  useEffect(() => {
+    if (inviteSearchTimeoutRef.current) {
+      clearTimeout(inviteSearchTimeoutRef.current)
+    }
+
+    if (inviteUserKeyword.trim()) {
+      setIsSearchingInviteUser(true)
+      inviteSearchTimeoutRef.current = setTimeout(async () => {
+        try {
+          const response = await getUserList({ page: 1, size: 20, keyword: inviteUserKeyword })
+          if (response.code === 'success') {
+            // 过滤掉已经是团队成员的用户
+            const memberUserIds = members.map(m => m.userId)
+            setInviteUsers(response.data.records.filter(u => !memberUserIds.includes(u.id)))
+          }
+        } catch {
+          // Error handled by interceptor
+        } finally {
+          setIsSearchingInviteUser(false)
+        }
+      }, 300)
+    } else {
+      setInviteUsers([])
+      setIsSearchingInviteUser(false)
+    }
+
+    return () => {
+      if (inviteSearchTimeoutRef.current) {
+        clearTimeout(inviteSearchTimeoutRef.current)
+      }
+    }
+  }, [inviteUserKeyword, members])
 
   const loadTeamDetail = async () => {
     if (!teamId) return
@@ -364,6 +426,46 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
     }
   }
 
+  const handleInviteMember = async () => {
+    if (!teamId || !selectedInviteUser) return
+    setSubmitting(true)
+    try {
+      const response = await inviteTeamMember(teamId, selectedInviteUser.id)
+      if (response.code === 'success') {
+        setInviteDialogOpen(false)
+        setSelectedInviteUser(null)
+        setInviteUserKeyword('')
+        loadMembers()
+      }
+    } catch {
+      // Error handled by interceptor
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleRemoveMember = async () => {
+    if (!teamId || !memberToRemove) return
+    setSubmitting(true)
+    try {
+      const response = await removeTeamMember(teamId, memberToRemove.id)
+      if (response.code === 'success') {
+        setRemoveDialogOpen(false)
+        setMemberToRemove(null)
+        loadMembers()
+      }
+    } catch {
+      // Error handled by interceptor
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const openRemoveDialog = (member: AdminTeamMemberVO) => {
+    setMemberToRemove(member)
+    setRemoveDialogOpen(true)
+  }
+
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
@@ -505,8 +607,11 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
                     <div>
                       <h4 className='mb-4 text-sm font-semibold'>订阅信息</h4>
                       <div className='grid grid-cols-2 gap-4'>
-                        <InfoCard label='当前计划' value={team.currentPlanNameZh} />
-                        <InfoCard label='订阅到期时间' value={team.subscriptionEndTime} />
+                        <InfoCard label='当前计划' value={team.currentPlanName} />
+                        <InfoCard
+                          label='订阅时间'
+                          value={team.subscriptionStartTime ? `${team.subscriptionStartTime} - ${team.subscriptionEndTime || '永久'}` : null}
+                        />
                         <InfoCard label='Stripe客户ID' value={team.stripeCustomerId} />
                         <InfoCard label='成员数量' value={team.memberCount} />
                       </div>
@@ -632,7 +737,20 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
 
                 {/* Members Tab */}
                 <TabsContent value='members' className='mt-0 p-6'>
-                  <div className='space-y-3'>
+                  <div className='space-y-4'>
+                    {/* 邀请按钮（个人团队不显示） */}
+                    {team?.status === 'ACTIVE' && team?.teamType !== 'PERSONAL' && (
+                      <Button
+                        variant='outline'
+                        className='w-full'
+                        onClick={() => setInviteDialogOpen(true)}
+                      >
+                        <UserPlus className='mr-2 h-4 w-4' />
+                        邀请人员加入团队
+                      </Button>
+                    )}
+
+                    {/* 成员列表 */}
                     {members.length === 0 ? (
                       <p className='text-center text-sm text-muted-foreground py-8'>暂无成员</p>
                     ) : (
@@ -662,6 +780,17 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
                                 </div>
                               </div>
                             </div>
+                            {/* 移除按钮（所有者不可移除） */}
+                            {member.role !== 'OWNER' && team?.status === 'ACTIVE' && (
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                className='text-destructive hover:text-destructive hover:bg-destructive/10'
+                                onClick={() => openRemoveDialog(member)}
+                              >
+                                <UserMinus className='h-4 w-4' />
+                              </Button>
+                            )}
                           </div>
                           <div className='mt-2 flex items-center gap-4 text-xs text-muted-foreground'>
                             {member.inviterNickname && (
@@ -766,7 +895,7 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
 
       {/* Transfer Dialog */}
       <Dialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
-        <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle className='flex items-center gap-2'>
               <div className='flex h-10 w-10 items-center justify-center rounded-full bg-primary/10'>
@@ -778,13 +907,32 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
           </DialogHeader>
           <div className='space-y-4'>
             <div>
-              <Label>新所有者用户ID <span className='text-destructive'>*</span></Label>
-              <Input
-                className='mt-1.5'
-                placeholder='请输入用户ID'
-                value={transferUserId}
-                onChange={(e) => setTransferUserId(e.target.value)}
-              />
+              <Label>新所有者 <span className='text-destructive'>*</span></Label>
+              <Select value={transferUserId} onValueChange={setTransferUserId}>
+                <SelectTrigger className='mt-1.5'>
+                  <SelectValue placeholder='请选择新所有者' />
+                </SelectTrigger>
+                <SelectContent position='popper' sideOffset={4} align='start'>
+                  {members.map((member) => (
+                    <SelectItem
+                      key={member.userId}
+                      value={String(member.userId)}
+                      disabled={member.userId === team?.ownerId}
+                    >
+                      <div className='flex items-center gap-2'>
+                        <Avatar className='size-5'>
+                          <AvatarImage src={member.userAvatarUrl || undefined} />
+                          <AvatarFallback className='text-xs'>{member.userNickname.slice(0, 1)}</AvatarFallback>
+                        </Avatar>
+                        <span>{member.userNickname}</span>
+                        <span className='text-muted-foreground'>
+                          ({member.userId === team?.ownerId ? '当前所有者' : member.roleDesc})
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>原所有者角色</Label>
@@ -792,7 +940,7 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
                 <SelectTrigger className='mt-1.5'>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position='popper' sideOffset={4} align='start'>
                   <SelectItem value='ADMIN'>管理员</SelectItem>
                   <SelectItem value='MEMBER'>成员</SelectItem>
                   <SelectItem value='LEAVE'>离开</SelectItem>
@@ -806,9 +954,158 @@ export function TeamDetailSheet({ teamId, open, onOpenChange, onTeamUpdated }: T
             </Button>
             <Button
               onClick={handleTransfer}
-              disabled={!transferUserId.trim() || submitting}
+              disabled={!transferUserId || submitting}
             >
               确认转让
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Member Dialog */}
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className='flex items-center gap-2'>
+              <div className='flex h-10 w-10 items-center justify-center rounded-full bg-primary/10'>
+                <UserPlus className='h-5 w-5 text-primary' />
+              </div>
+              邀请人员加入团队
+            </DialogTitle>
+            <DialogDescription>搜索并选择要邀请的用户</DialogDescription>
+          </DialogHeader>
+          <div className='space-y-4'>
+            {/* 已选择的用户 */}
+            {selectedInviteUser && (
+              <div className='flex items-center justify-between rounded-lg border bg-muted/50 p-3'>
+                <div className='flex items-center gap-3'>
+                  <Avatar className='size-8'>
+                    <AvatarImage src={selectedInviteUser.avatarUrl || undefined} />
+                    <AvatarFallback>{selectedInviteUser.nickname?.slice(0, 1)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className='font-medium text-sm'>{selectedInviteUser.nickname}</p>
+                    <p className='text-xs text-muted-foreground'>ID: {selectedInviteUser.id}</p>
+                  </div>
+                </div>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='h-6 w-6'
+                  onClick={() => setSelectedInviteUser(null)}
+                >
+                  <X className='h-4 w-4' />
+                </Button>
+              </div>
+            )}
+
+            {/* 搜索输入 */}
+            {!selectedInviteUser && (
+              <div className='space-y-3'>
+                <div className='relative'>
+                  <Search className='absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground' />
+                  <Input
+                    placeholder='搜索用户昵称或邀请码'
+                    value={inviteUserKeyword}
+                    onChange={(e) => setInviteUserKeyword(e.target.value)}
+                    className='pl-9 pr-9'
+                  />
+                  {isSearchingInviteUser && (
+                    <LoaderCircle className='absolute right-3 top-1/2 -translate-y-1/2 size-4 animate-spin text-muted-foreground' />
+                  )}
+                </div>
+
+                {/* 搜索结果 */}
+                <div className='max-h-48 overflow-y-auto rounded-lg border'>
+                  {inviteUsers.length === 0 ? (
+                    <p className='text-center text-sm text-muted-foreground py-6'>
+                      {inviteUserKeyword ? '未找到用户' : '输入关键词搜索用户'}
+                    </p>
+                  ) : (
+                    inviteUsers.map((user) => (
+                      <button
+                        key={user.id}
+                        type='button'
+                        className='flex w-full items-center gap-3 px-3 py-2 text-sm hover:bg-accent cursor-pointer border-b last:border-b-0'
+                        onClick={() => {
+                          setSelectedInviteUser(user)
+                          setInviteUserKeyword('')
+                        }}
+                      >
+                        <Avatar className='size-8'>
+                          <AvatarImage src={user.avatarUrl || undefined} />
+                          <AvatarFallback>{user.nickname?.slice(0, 1)}</AvatarFallback>
+                        </Avatar>
+                        <div className='flex-1 text-left'>
+                          <p className='font-medium'>{user.nickname}</p>
+                          <p className='text-xs text-muted-foreground'>ID: {user.id}</p>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => {
+              setInviteDialogOpen(false)
+              setSelectedInviteUser(null)
+              setInviteUserKeyword('')
+            }}>
+              取消
+            </Button>
+            <Button
+              onClick={handleInviteMember}
+              disabled={!selectedInviteUser || submitting}
+            >
+              确认邀请
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Member Dialog */}
+      <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className='flex items-center gap-2'>
+              <div className='flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10'>
+                <UserMinus className='h-5 w-5 text-destructive' />
+              </div>
+              移除团队成员
+            </DialogTitle>
+            <DialogDescription>
+              确定要将 <span className='font-medium text-foreground'>{memberToRemove?.userNickname}</span> 从团队中移除吗？
+            </DialogDescription>
+          </DialogHeader>
+          {memberToRemove && (
+            <div className='flex items-center gap-3 rounded-lg border bg-muted/50 p-3'>
+              <Avatar className='size-10'>
+                <AvatarImage src={memberToRemove.userAvatarUrl || undefined} />
+                <AvatarFallback>{memberToRemove.userNickname.slice(0, 2)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className='font-medium'>{memberToRemove.userNickname}</p>
+                <p className='text-xs text-muted-foreground'>
+                  {memberToRemove.roleDesc} · ID: {memberToRemove.userId}
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant='outline' onClick={() => {
+              setRemoveDialogOpen(false)
+              setMemberToRemove(null)
+            }}>
+              取消
+            </Button>
+            <Button
+              variant='destructive'
+              onClick={handleRemoveMember}
+              disabled={submitting}
+            >
+              确认移除
             </Button>
           </DialogFooter>
         </DialogContent>

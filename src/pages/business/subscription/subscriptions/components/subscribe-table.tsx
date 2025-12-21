@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpCircle, Check, Copy, XCircle } from 'lucide-react'
+import { ArrowUpCircle, Check, Copy, XCircle, MessageSquareText } from 'lucide-react'
 
 import {
   Table,
@@ -90,8 +90,8 @@ export function SubscribeTable({
         <TableHeader>
           <TableRow>
             <TableHead className='w-16'>ID</TableHead>
-            <TableHead>团队ID</TableHead>
-            <TableHead>计划编码</TableHead>
+            <TableHead>团队</TableHead>
+            <TableHead>订阅计划</TableHead>
             <TableHead>状态</TableHead>
             <TableHead>来源</TableHead>
             <TableHead>席位</TableHead>
@@ -135,18 +135,28 @@ export function SubscribeTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className='group flex items-center gap-1'>
-                    <span>{subscribe.teamId}</span>
-                    <CopyButton text={String(subscribe.teamId)} />
+                  <div className='space-y-0.5'>
+                    <div className='group flex items-center gap-1'>
+                      <span className='font-medium'>{subscribe.teamName || '-'}</span>
+                      {subscribe.teamName && <CopyButton text={subscribe.teamName} />}
+                    </div>
+                    <div className='group flex items-center gap-1'>
+                      <span className='text-xs text-muted-foreground'>ID: {subscribe.teamId}</span>
+                      <CopyButton text={String(subscribe.teamId)} />
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  {subscribe.planCode ? (
-                    <div className='group flex items-center gap-1'>
-                      <code className='rounded bg-muted px-1.5 py-0.5 text-sm'>
-                        {subscribe.planCode}
-                      </code>
-                      <CopyButton text={subscribe.planCode} />
+                  {subscribe.planId ? (
+                    <div className='space-y-0.5'>
+                      <div className='group flex items-center gap-1'>
+                        <span className='font-medium'>{subscribe.planName || '-'}</span>
+                        {subscribe.planName && <CopyButton text={subscribe.planName} />}
+                      </div>
+                      <div className='group flex items-center gap-1'>
+                        <span className='text-xs text-muted-foreground'>ID: {subscribe.planId}</span>
+                        <CopyButton text={String(subscribe.planId)} />
+                      </div>
                     </div>
                   ) : (
                     <span className='text-muted-foreground'>-</span>
@@ -171,12 +181,22 @@ export function SubscribeTable({
                 </TableCell>
                 <TableCell>
                   {subscribe.source === 'GRANT' && subscribe.grantUserId ? (
-                    <div className='text-sm'>
-                      <div>操作人: {subscribe.grantUserId}</div>
+                    <div className='flex items-center gap-1.5 text-sm'>
+                      <div className='group flex items-center gap-1'>
+                        <span>
+                          {subscribe.grantUserNickname || subscribe.grantUserNo || subscribe.grantUserId}
+                        </span>
+                        <CopyButton text={String(subscribe.grantUserId)} />
+                      </div>
                       {subscribe.grantReason && (
-                        <div className='text-muted-foreground truncate max-w-32' title={subscribe.grantReason}>
-                          {subscribe.grantReason}
-                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <MessageSquareText className='size-4 text-muted-foreground cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent className='max-w-64'>
+                            <p>{subscribe.grantReason}</p>
+                          </TooltipContent>
+                        </Tooltip>
                       )}
                     </div>
                   ) : (

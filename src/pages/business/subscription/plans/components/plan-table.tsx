@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Copy, MoreHorizontal, Star, Trash2 } from 'lucide-react'
+import { Check, Copy, Star, Trash2 } from 'lucide-react'
 
 import {
   Table,
@@ -13,13 +13,6 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -244,32 +237,36 @@ export function PlanTable({
                     />
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant='ghost' size='icon' className='size-8'>
-                          <MoreHorizontal className='size-4' />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align='end'>
-                        <DropdownMenuItem onClick={() => onPlanClick?.(plan.id)}>
-                          查看详情
-                        </DropdownMenuItem>
-                        {!plan.isDefault && (
-                          <DropdownMenuItem onClick={() => onSetDefault?.(plan.id)}>
-                            <Star className='mr-2 size-4' />
-                            设为默认
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className='text-destructive'
-                          onClick={() => handleDeleteClick(plan.id)}
-                        >
-                          <Trash2 className='mr-2 size-4' />
-                          删除计划
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className='flex items-center gap-1'>
+                      {!plan.isDefault && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='size-8'
+                              onClick={() => onSetDefault?.(plan.id)}
+                            >
+                              <Star className='size-4' />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>设为默认</TooltipContent>
+                        </Tooltip>
+                      )}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='size-8 text-destructive hover:text-destructive hover:bg-destructive/10'
+                            onClick={() => handleDeleteClick(plan.id)}
+                          >
+                            <Trash2 className='size-4' />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>删除计划</TooltipContent>
+                      </Tooltip>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
