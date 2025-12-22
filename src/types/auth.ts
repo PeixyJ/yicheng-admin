@@ -27,16 +27,28 @@ export interface LoginRequest {
   captcha?: string
   /** 验证码Key */
   captchaKey?: string
+  /** MFA 验证码 */
+  mfaCode?: string
 }
+
+/**
+ * 登录状态
+ */
+export type LoginStatus = 'SUCCESS' | 'MFA_REQUIRED' | 'PWD_EXPIRED' | 'FORCE_PWD_CHANGE'
+
+/**
+ * MFA 类型
+ */
+export type MfaType = 'TOTP' | 'EMAIL' | 'SMS'
 
 /**
  * 登录响应
  */
 export interface LoginVO {
   /** 登录状态码 */
-  status: string
+  status: LoginStatus
   /** 状态描述 */
-  statusDesc: string
+  statusDesc?: string
   /** 访问令牌 */
   token?: string
   /** 令牌过期时间 */
@@ -44,7 +56,7 @@ export interface LoginVO {
   /** MFA 令牌 */
   mfaToken?: string
   /** 支持的 MFA 类型列表 */
-  mfaTypes?: string[]
+  mfaTypes?: MfaType[]
   /** 是否需要强制修改密码 */
   forcePwdChange?: boolean
   /** 密码过期时间 */
@@ -52,3 +64,4 @@ export interface LoginVO {
   /** 用户ID */
   userId?: number
 }
+

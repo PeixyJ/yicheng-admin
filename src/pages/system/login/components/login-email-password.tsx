@@ -2,13 +2,14 @@
 
 import {useState} from 'react'
 import {useNavigate} from 'react-router-dom'
-import {EyeIcon, EyeOffIcon, Loader2Icon} from 'lucide-react'
+import {ArrowLeftIcon, EyeIcon, EyeOffIcon, Loader2Icon, ShieldCheckIcon} from 'lucide-react'
 
 import {Button} from '@/components/ui/button'
 import {Checkbox} from '@/components/ui/checkbox'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {AlertSuccess, AlertError} from '@/components/shadcn-studio/alert'
+import {InputOTP, InputOTPGroup, InputOTPSlot} from '@/components/ui/input-otp'
 
 import {loginByEmailPassword} from '@/services/auth'
 import {setToken} from '@/utils/request'
@@ -22,6 +23,10 @@ const LoginEmailPasswordForm = () => {
     const [rememberMe, setRememberMe] = useState(false)
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
     const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+
+    // MFA 状态
+    const [mfaRequired, setMfaRequired] = useState(false)
+    const [totpCode, setTotpCode] = useState('')
 
     const validate = () => {
         const newErrors: { email?: string; password?: string } = {}
@@ -49,10 +54,17 @@ const LoginEmailPasswordForm = () => {
         setIsLoading(true)
         try {
             const response = await loginByEmailPassword(email, password, rememberMe)
-            if (response.code === 'success' && response.data.token) {
-                setToken(response.data.token)
-                setAlert({ type: 'success', message: '登录成功' })
-                setTimeout(() => navigate('/dashboard'), 500)
+            if (response.code === 'success') {
+                if (response.data.status === 'MFA_REQUIRED') {
+                    // 需要 MFA 验证
+                    setMfaRequired(true)
+                } else if (response.data.token) {
+                    setToken(response.data.token)
+                    setAlert({ type: 'success', message: '登录成功' })
+                    setTimeout(() => navigate('/dashboard'), 500)
+                } else {
+                    setAlert({ type: 'error', message: response.message || '登录失败' })
+                }
             } else {
                 setAlert({ type: 'error', message: response.message || '登录失败' })
             }
@@ -62,6 +74,100 @@ const LoginEmailPasswordForm = () => {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const handleMfaSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setAlert(null)
+
+        if (totpCode.length !== 6) {
+            setAlert({ type: 'error', message: '请输入 6 位验证码' })
+            return
+        }
+
+        setIsLoading(true)
+        try {
+            const response = await loginByEmailPassword(email, password, rememberMe, totpCode)
+            if (response.code === 'success' && response.data.token) {
+                setToken(response.data.token)
+                setAlert({ type: 'success', message: '登录成功' })
+                setTimeout(() => navigate('/dashboard'), 500)
+            } else {
+                setAlert({ type: 'error', message: response.message || '验证失败' })
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : '验证失败'
+            setAlert({ type: 'error', message })
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleBackToLogin = () => {
+        setMfaRequired(false)
+        setTotpCode('')
+        setAlert(null)
+    }
+
+    // MFA 验证界面
+    if (mfaRequired) {
+        return (
+            <form className='space-y-6' onSubmit={handleMfaSubmit}>
+                {/* Alert */}
+                {alert && (
+                    alert.type === 'success'
+                        ? <AlertSuccess message={alert.message} />
+                        : <AlertError message={alert.message} />
+                )}
+
+                <div className='flex flex-col items-center gap-4'>
+                    <div className='flex size-14 items-center justify-center rounded-full bg-primary/10'>
+                        <ShieldCheckIcon className='size-7 text-primary'/>
+                    </div>
+                    <div className='text-center'>
+                        <h3 className='text-lg font-semibold'>两步验证</h3>
+                        <p className='text-muted-foreground text-sm'>
+                            请输入验证器应用中的 6 位验证码
+                        </p>
+                    </div>
+                </div>
+
+                <div className='flex justify-center'>
+                    <InputOTP
+                        maxLength={6}
+                        value={totpCode}
+                        onChange={setTotpCode}
+                        disabled={isLoading}
+                    >
+                        <InputOTPGroup>
+                            <InputOTPSlot index={0}/>
+                            <InputOTPSlot index={1}/>
+                            <InputOTPSlot index={2}/>
+                            <InputOTPSlot index={3}/>
+                            <InputOTPSlot index={4}/>
+                            <InputOTPSlot index={5}/>
+                        </InputOTPGroup>
+                    </InputOTP>
+                </div>
+
+                <div className='space-y-3'>
+                    <Button className='w-full' type='submit' disabled={isLoading || totpCode.length !== 6}>
+                        {isLoading && <Loader2Icon className='mr-2 size-4 animate-spin'/>}
+                        验证
+                    </Button>
+                    <Button
+                        type='button'
+                        variant='ghost'
+                        className='w-full'
+                        onClick={handleBackToLogin}
+                        disabled={isLoading}
+                    >
+                        <ArrowLeftIcon className='mr-2 size-4'/>
+                        返回登录
+                    </Button>
+                </div>
+            </form>
+        )
     }
 
     return (

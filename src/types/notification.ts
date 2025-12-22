@@ -53,3 +53,19 @@ export interface NotificationListParams {
   parentType?: NotificationParentType
   status?: NotificationStatus
 }
+
+// 发送通知请求参数
+export interface SendNotificationRequest {
+  /** 模板编码 */
+  templateCode: string
+  /** 接收用户ID */
+  userId: number
+  /** 所属团队ID */
+  teamId?: number
+  /** 模板参数 */
+  params?: Record<string, unknown>
+  /** 发送者类型 */
+  senderType?: NotificationSenderType
+  /** 发送者用户ID */
+  senderId?: number
+}

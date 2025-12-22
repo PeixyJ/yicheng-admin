@@ -4,6 +4,7 @@ import { NotificationSearch } from './components/notification-search'
 import { NotificationTable } from './components/notification-table'
 import { NotificationDetailSheet } from './components/notification-detail-sheet'
 import { DeleteNotificationDialog } from './components/delete-notification-dialog'
+import { SendNotificationDialog } from './components/send-notification-dialog'
 import { Pagination } from '@/components/pagination'
 import { getNotificationList } from '@/services/notification'
 import type { NotificationVO, NotificationParentType, NotificationStatus } from '@/types/notification'
@@ -88,6 +89,7 @@ const NotificationRecordsPage = () => {
     <div className='flex flex-1 flex-col gap-4'>
       <div className='flex items-center justify-between'>
         <h1 className='text-2xl font-semibold'>通知记录管理</h1>
+        <SendNotificationDialog onSuccess={fetchNotifications} />
       </div>
 
       <NotificationSearch

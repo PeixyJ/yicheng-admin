@@ -1,9 +1,10 @@
-import { get, del } from '@/utils/request'
+import { get, post, del } from '@/utils/request'
 import type { PageData } from '@/types/api'
 import type {
   NotificationVO,
   NotificationDetailVO,
   NotificationListParams,
+  SendNotificationRequest,
 } from '@/types/notification'
 
 /**
@@ -32,4 +33,11 @@ export function getNotificationDetail(id: number) {
  */
 export function deleteNotification(id: number) {
   return del<void>(`/v1/notification/notifications/${id}`)
+}
+
+/**
+ * 手动发送通知
+ */
+export function sendNotification(data: SendNotificationRequest) {
+  return post<number>('/v1/notification/notifications/send', data)
 }

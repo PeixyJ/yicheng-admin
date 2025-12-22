@@ -15,7 +15,8 @@ export async function checkLoginStatus() {
 export async function loginByEmailPassword(
   email: string,
   password: string,
-  rememberMe: boolean = false
+  rememberMe: boolean = false,
+  mfaCode?: string
 ) {
   // 对密码进行 SHA256 加密
   const encryptedPassword = await encryptPassword(password)
@@ -25,6 +26,9 @@ export async function loginByEmailPassword(
     identifier: email,
     password: encryptedPassword,
     rememberMe,
+    captcha: '',
+    captchaKey: '',
+    mfaCode,
   }
 
   return post<LoginVO>('/v1/login', request)
