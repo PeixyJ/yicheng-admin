@@ -23,8 +23,16 @@ export interface AdminPaymentOrderVO {
   orderNo: string
   /** 团队ID */
   teamId: number
+  /** 团队名称 */
+  teamName: string | null
+  /** 团队Logo */
+  teamLogoUrl: string | null
   /** 用户ID */
   userId: number
+  /** 用户昵称 */
+  userNickname: string | null
+  /** 用户头像 */
+  userAvatarUrl: string | null
   /** 支付渠道 */
   paymentChannel: string
   /** 支付渠道描述 */
@@ -73,8 +81,16 @@ export interface AdminPaymentOrderDetailVO {
   orderNo: string
   /** 团队ID */
   teamId: number
+  /** 团队名称 */
+  teamName: string | null
+  /** 团队Logo */
+  teamLogoUrl: string | null
   /** 用户ID */
   userId: number
+  /** 用户昵称 */
+  userNickname: string | null
+  /** 用户头像 */
+  userAvatarUrl: string | null
   /** 支付渠道 */
   paymentChannel: string
   /** 支付渠道描述 */

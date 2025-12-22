@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react'
 
-import { StatisticsCards } from './components/statistics-cards'
 import { OrderSearch } from './components/order-search'
 import { OrderTable } from './components/order-table'
 import { OrderDetailSheet } from './components/order-detail-sheet'
 import { RefundDialog } from './components/refund-dialog'
 import { CancelDialog } from './components/cancel-dialog'
 import { Pagination } from '@/components/pagination'
-import { getPaymentOrderList, getPaymentStatistics } from '@/services/payment-order'
+import { getPaymentOrderList } from '@/services/payment-order'
 import type {
   AdminPaymentOrderVO,
   AdminPaymentOrderDetailVO,
-  PaymentStatisticsVO,
   PaymentChannel,
   OrderType,
   OrderStatus,
@@ -19,9 +17,7 @@ import type {
 
 const PaymentOrdersPage = () => {
   const [loading, setLoading] = useState(false)
-  const [statisticsLoading, setStatisticsLoading] = useState(false)
   const [orders, setOrders] = useState<AdminPaymentOrderVO[]>([])
-  const [statistics, setStatistics] = useState<PaymentStatisticsVO | null>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
@@ -33,8 +29,6 @@ const PaymentOrdersPage = () => {
   const [paymentChannel, setPaymentChannel] = useState<PaymentChannel | 'all'>('all')
   const [orderType, setOrderType] = useState<OrderType | 'all'>('all')
   const [orderStatus, setOrderStatus] = useState<OrderStatus | 'all'>('all')
-  const [createTimeStart, setCreateTimeStart] = useState('')
-  const [createTimeEnd, setCreateTimeEnd] = useState('')
 
   // 弹窗状态
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null)
@@ -55,8 +49,6 @@ const PaymentOrdersPage = () => {
         paymentChannel: paymentChannel !== 'all' ? paymentChannel : undefined,
         orderType: orderType !== 'all' ? orderType : undefined,
         orderStatus: orderStatus !== 'all' ? orderStatus : undefined,
-        createTimeStart: createTimeStart || undefined,
-        createTimeEnd: createTimeEnd || undefined,
       })
       if (res.code === 'success') {
         setOrders(res.data.records)
@@ -69,27 +61,9 @@ const PaymentOrdersPage = () => {
     }
   }
 
-  const fetchStatistics = async () => {
-    setStatisticsLoading(true)
-    try {
-      const res = await getPaymentStatistics()
-      if (res.code === 'success') {
-        setStatistics(res.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error)
-    } finally {
-      setStatisticsLoading(false)
-    }
-  }
-
   useEffect(() => {
     fetchOrders()
   }, [page, pageSize])
-
-  useEffect(() => {
-    fetchStatistics()
-  }, [])
 
   const handleSearch = () => {
     setPage(1)
@@ -103,8 +77,6 @@ const PaymentOrdersPage = () => {
     setPaymentChannel('all')
     setOrderType('all')
     setOrderStatus('all')
-    setCreateTimeStart('')
-    setCreateTimeEnd('')
     setPage(1)
     setTimeout(fetchOrders, 0)
   }
@@ -133,14 +105,11 @@ const PaymentOrdersPage = () => {
 
   const handleActionSuccess = () => {
     fetchOrders()
-    fetchStatistics()
   }
 
   return (
     <div className='flex flex-1 flex-col gap-4'>
       <h1 className='text-2xl font-semibold'>订单管理</h1>
-
-      <StatisticsCards statistics={statistics} loading={statisticsLoading} />
 
       <OrderSearch
         orderNo={orderNo}
@@ -149,16 +118,12 @@ const PaymentOrdersPage = () => {
         paymentChannel={paymentChannel}
         orderType={orderType}
         orderStatus={orderStatus}
-        createTimeStart={createTimeStart}
-        createTimeEnd={createTimeEnd}
         onOrderNoChange={setOrderNo}
         onTeamIdChange={setTeamId}
         onUserIdChange={setUserId}
         onPaymentChannelChange={setPaymentChannel}
         onOrderTypeChange={setOrderType}
         onOrderStatusChange={setOrderStatus}
-        onCreateTimeStartChange={setCreateTimeStart}
-        onCreateTimeEndChange={setCreateTimeEnd}
         onSearch={handleSearch}
         onReset={handleReset}
       />
