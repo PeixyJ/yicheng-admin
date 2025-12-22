@@ -221,7 +221,7 @@ export function OrderSearch({
   }
 
   return (
-    <div className='flex items-center gap-3 rounded-lg border bg-card p-4'>
+    <div className='flex items-center gap-3 rounded-lg'>
       <div className='relative'>
         <Search className='absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground' />
         <Input

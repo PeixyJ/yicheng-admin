@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { CouponVO, CouponStatus, CouponSource } from '@/types/coupon'
 
 function CopyButton({ text }: { text: string }) {
@@ -80,8 +81,8 @@ export function CouponTable({ coupons, loading, onCouponClick }: CouponTableProp
             <TableHead>优惠券编号</TableHead>
             <TableHead>模板</TableHead>
             <TableHead>折扣</TableHead>
-            <TableHead>团队ID</TableHead>
-            <TableHead>用户ID</TableHead>
+            <TableHead>团队</TableHead>
+            <TableHead>用户</TableHead>
             <TableHead>状态</TableHead>
             <TableHead>来源</TableHead>
             <TableHead>过期时间</TableHead>
@@ -162,16 +163,36 @@ export function CouponTable({ coupons, loading, onCouponClick }: CouponTableProp
                   </span>
                 </TableCell>
                 <TableCell>
-                  <div className='group flex items-center gap-1'>
-                    <span>{coupon.teamId}</span>
-                    <CopyButton text={String(coupon.teamId)} />
-                  </div>
+                  {coupon.teamId ? (
+                    <div className='group flex items-center gap-2'>
+                      <Avatar className='size-6'>
+                        <AvatarImage src={coupon.teamLogoUrl || undefined} />
+                        <AvatarFallback className='text-xs'>
+                          {coupon.teamName?.charAt(0) || 'T'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className='text-sm'>{coupon.teamName}</span>
+                      <CopyButton text={String(coupon.teamId)} />
+                    </div>
+                  ) : (
+                    <span className='text-muted-foreground'>-</span>
+                  )}
                 </TableCell>
                 <TableCell>
-                  <div className='group flex items-center gap-1'>
-                    <span>{coupon.userId}</span>
-                    <CopyButton text={String(coupon.userId)} />
-                  </div>
+                  {coupon.userId ? (
+                    <div className='group flex items-center gap-2'>
+                      <Avatar className='size-6'>
+                        <AvatarImage src={coupon.userAvatarUrl || undefined} />
+                        <AvatarFallback className='text-xs'>
+                          {coupon.userNickname?.charAt(0) || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className='text-sm'>{coupon.userNickname}</span>
+                      <CopyButton text={String(coupon.userId)} />
+                    </div>
+                  ) : (
+                    <span className='text-muted-foreground'>-</span>
+                  )}
                 </TableCell>
                 <TableCell>{getStatusBadge(coupon.status, coupon.statusDesc)}</TableCell>
                 <TableCell>{getSourceBadge(coupon.source, coupon.sourceDesc)}</TableCell>

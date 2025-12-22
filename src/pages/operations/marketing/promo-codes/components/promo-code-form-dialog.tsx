@@ -21,7 +21,6 @@ import {
 import { Input } from '@/components/ui/input.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { Textarea } from '@/components/ui/textarea.tsx'
-import { Checkbox } from '@/components/ui/checkbox.tsx'
 import {
   Select,
   SelectContent,
@@ -30,6 +29,9 @@ import {
   SelectValue,
 } from '@/components/ui/select.tsx'
 import { Skeleton } from '@/components/ui/skeleton.tsx'
+import { DateTimePicker } from '@/components/shadcn-studio/date-picker/date-time-picker'
+import { SwitchIconIndicator } from '@/components/shadcn-studio/switch/switch-icon-indicator'
+import { NumberInput } from '@/components/shadcn-studio/input/number-input'
 import { createPromoCode, updatePromoCode, getPromoCodeDetail } from '@/services/promo-code.ts'
 
 const formSchema = z.object({
@@ -130,13 +132,13 @@ export function PromoCodeFormDialog({
           discountValue: data.discountValue,
           currency: data.currency || 'usd',
           maxDiscountAmount: data.maxDiscountAmount || undefined,
-          minOrderAmount: data.minOrderAmount || undefined,
+          minOrderAmount: data.minOrderAmount ? data.minOrderAmount / 100 : undefined,
           applicableProductType: data.applicableProductType,
           totalLimit: data.totalLimit || undefined,
           perUserLimit: data.perUserLimit || undefined,
           perTeamLimit: data.perTeamLimit || undefined,
-          startTime: data.startTime ? data.startTime.slice(0, 16) : '',
-          endTime: data.endTime ? data.endTime.slice(0, 16) : '',
+          startTime: data.startTime || '',
+          endTime: data.endTime || '',
           isFirstOrderOnly: data.isFirstOrderOnly,
           isNewUserOnly: data.isNewUserOnly,
           metadata: data.metadata || '',
@@ -157,7 +159,7 @@ export function PromoCodeFormDialog({
         description: values.description || undefined,
         currency: values.discountType === 'FIXED_AMOUNT' ? values.currency : undefined,
         maxDiscountAmount: values.discountType === 'PERCENT' ? values.maxDiscountAmount : undefined,
-        minOrderAmount: values.minOrderAmount || undefined,
+        minOrderAmount: values.minOrderAmount ? Math.round(values.minOrderAmount * 100) : undefined,
         totalLimit: values.totalLimit || undefined,
         perUserLimit: values.perUserLimit || undefined,
         perTeamLimit: values.perTeamLimit || undefined,
@@ -201,7 +203,7 @@ export function PromoCodeFormDialog({
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 py-4'>
-              <div className='grid grid-cols-2 gap-4'>
+              <div className='grid grid-cols-2 gap-4 items-start'>
                 <FormField
                   control={form.control}
                   name='code'
@@ -251,7 +253,7 @@ export function PromoCodeFormDialog({
                 )}
               />
 
-              <div className='grid grid-cols-3 gap-4'>
+              <div className='grid grid-cols-3 gap-4 items-start'>
                 <FormField
                   control={form.control}
                   name='discountType'
@@ -372,7 +374,7 @@ export function PromoCodeFormDialog({
                   name='minOrderAmount'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>最低订单金额（分）</FormLabel>
+                      <FormLabel>最低订单金额（元）</FormLabel>
                       <FormControl>
                         <Input
                           type='number'
@@ -396,11 +398,10 @@ export function PromoCodeFormDialog({
                     <FormItem>
                       <FormLabel>总使用限制</FormLabel>
                       <FormControl>
-                        <Input
-                          type='number'
-                          {...field}
-                          value={field.value || ''}
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        <NumberInput
+                          value={field.value}
+                          onChange={field.onChange}
+                          minValue={0}
                           placeholder='不限'
                         />
                       </FormControl>
@@ -416,11 +417,10 @@ export function PromoCodeFormDialog({
                     <FormItem>
                       <FormLabel>每用户限制</FormLabel>
                       <FormControl>
-                        <Input
-                          type='number'
-                          {...field}
-                          value={field.value || ''}
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        <NumberInput
+                          value={field.value}
+                          onChange={field.onChange}
+                          minValue={0}
                           placeholder='不限'
                         />
                       </FormControl>
@@ -436,11 +436,10 @@ export function PromoCodeFormDialog({
                     <FormItem>
                       <FormLabel>每团队限制</FormLabel>
                       <FormControl>
-                        <Input
-                          type='number'
-                          {...field}
-                          value={field.value || ''}
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        <NumberInput
+                          value={field.value}
+                          onChange={field.onChange}
+                          minValue={0}
                           placeholder='不限'
                         />
                       </FormControl>
@@ -450,49 +449,56 @@ export function PromoCodeFormDialog({
                 />
               </div>
 
+              <FormField
+                control={form.control}
+                name='startTime'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>开始时间 *</FormLabel>
+                    <FormControl>
+                      <DateTimePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder='选择开始日期'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='endTime'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>结束时间 *</FormLabel>
+                    <FormControl>
+                      <DateTimePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder='选择结束日期'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className='grid grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='startTime'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>开始时间 *</FormLabel>
-                      <FormControl>
-                        <Input type='datetime-local' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='endTime'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>结束时间 *</FormLabel>
-                      <FormControl>
-                        <Input type='datetime-local' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className='flex items-center gap-6'>
                 <FormField
                   control={form.control}
                   name='isFirstOrderOnly'
                   render={({ field }) => (
-                    <FormItem className='flex items-center gap-2 space-y-0'>
+                    <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+                      <FormLabel className='font-normal'>仅限首单</FormLabel>
                       <FormControl>
-                        <Checkbox
+                        <SwitchIconIndicator
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          aria-label='仅限首单'
                         />
                       </FormControl>
-                      <FormLabel className='font-normal'>仅限首单</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -501,14 +507,15 @@ export function PromoCodeFormDialog({
                   control={form.control}
                   name='isNewUserOnly'
                   render={({ field }) => (
-                    <FormItem className='flex items-center gap-2 space-y-0'>
+                    <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+                      <FormLabel className='font-normal'>仅限新用户</FormLabel>
                       <FormControl>
-                        <Checkbox
+                        <SwitchIconIndicator
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          aria-label='仅限新用户'
                         />
                       </FormControl>
-                      <FormLabel className='font-normal'>仅限新用户</FormLabel>
                     </FormItem>
                   )}
                 />

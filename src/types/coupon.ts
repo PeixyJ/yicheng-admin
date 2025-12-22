@@ -31,9 +31,17 @@ export interface CouponVO {
   /** 货币类型 */
   currency: string
   /** 所属团队ID */
-  teamId: number
+  teamId: number | null
+  /** 团队名称 */
+  teamName: string | null
+  /** 团队Logo URL */
+  teamLogoUrl: string | null
   /** 所属用户ID */
-  userId: number
+  userId: number | null
+  /** 用户昵称 */
+  userNickname: string | null
+  /** 用户头像URL */
+  userAvatarUrl: string | null
   /** 状态 */
   status: CouponStatus
   /** 状态描述 */

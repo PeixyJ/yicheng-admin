@@ -43,7 +43,7 @@ const CreditRecordsPage = lazy(() => import('@/pages/business/credits/records'))
 const CreditTransactionsPage = lazy(() => import('@/pages/business/credits/transactions'))
 const PaymentOrdersPage = lazy(() => import('@/pages/business/payments/orders'))
 const PaymentCustomersPage = lazy(() => import('@/pages/business/payments/customers'))
-const WebhooksPage = lazy(() => import('@/pages/business/payments/webhooks'))
+const PaymentEventsPage = lazy(() => import('@/pages/business/payments/events'))
 const PromoCodesPage = lazy(() => import('@/pages/operations/marketing/promo-codes'))
 const CouponTemplatesPage = lazy(() => import('@/pages/operations/marketing/coupon-templates'))
 const CouponsPage = lazy(() => import('@/pages/operations/marketing/coupons'))
@@ -198,11 +198,11 @@ export const menuConfig: MenuConfig = {
                             element: <PaymentCustomersPage/>,
                         },
                         {
-                            id: 'webhooks',
+                            id: 'payment-events',
                             title: 'Webhook事件管理',
-                            path: '/dashboard/webhooks',
+                            path: '/dashboard/payment-events',
                             icon: Webhook,
-                            element: <WebhooksPage/>,
+                            element: <PaymentEventsPage/>,
                         },
                     ],
                 },

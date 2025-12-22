@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
 
 import {
@@ -86,7 +86,7 @@ export function TemplateTable({
             <TableHead className='w-28'>发放量</TableHead>
             <TableHead className='w-20'>状态</TableHead>
             <TableHead className='w-40'>创建时间</TableHead>
-            <TableHead className='w-28'>操作</TableHead>
+            <TableHead className='w-20'>操作</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -120,7 +120,13 @@ export function TemplateTable({
                     <span className='font-medium'>{template.id}</span>
                   </TableCell>
                   <TableCell>
-                    <span className='truncate max-w-36' title={template.name}>{template.name}</span>
+                    <button
+                      className='truncate max-w-36 text-left hover:text-primary hover:underline transition-colors cursor-pointer'
+                      title={template.name}
+                      onClick={() => onViewDetail?.(template)}
+                    >
+                      {template.name}
+                    </button>
                   </TableCell>
                   <TableCell>
                     <Badge variant={discountConfig.variant}>{discountConfig.label}</Badge>
@@ -153,15 +159,6 @@ export function TemplateTable({
                   </TableCell>
                   <TableCell>
                     <div className='flex items-center gap-1'>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='size-8'
-                        onClick={() => onViewDetail?.(template)}
-                        title='查看详情'
-                      >
-                        <Eye className='size-4' />
-                      </Button>
                       <Button
                         variant='ghost'
                         size='icon'

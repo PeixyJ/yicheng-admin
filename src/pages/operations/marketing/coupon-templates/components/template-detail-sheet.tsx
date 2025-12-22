@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, Gift, Percent, Calendar, Tag, Clock } from 'lucide-react'
 import dayjs from 'dayjs'
 
 import {
@@ -7,43 +7,58 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet.tsx'
-import { Button } from '@/components/ui/button.tsx'
-import { Separator } from '@/components/ui/separator.tsx'
-import { Skeleton } from '@/components/ui/skeleton.tsx'
-import { Badge } from '@/components/ui/badge.tsx'
-import { getCouponTemplateDetail } from '@/services/coupon-template.ts'
-import type { CouponTemplateDetailVO, DiscountType } from '@/types/coupon-template.ts'
+} from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
+import { getCouponTemplateDetail } from '@/services/coupon-template'
+import type { CouponTemplateDetailVO, DiscountType } from '@/types/coupon-template'
 
-function CopyableField({ label, value }: { label: string; value: string | number | null }) {
+// 复制按钮组件
+function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
 
-  if (value === null || value === undefined) return null
-
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(String(value))
+    await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
 
   return (
-    <div className='group flex items-center justify-between py-2'>
-      <span className='text-sm text-muted-foreground'>{label}</span>
+    <Button
+      variant='ghost'
+      size='icon'
+      className='size-6 text-muted-foreground hover:text-foreground'
+      onClick={handleCopy}
+    >
+      {copied ? <Check className='size-3.5' /> : <Copy className='size-3.5' />}
+    </Button>
+  )
+}
+
+// 信息卡片组件
+function InfoCard({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string
+  value: string | number | null | undefined
+  icon?: React.ElementType
+}) {
+  return (
+    <div className='rounded-lg border bg-card p-4'>
       <div className='flex items-center gap-2'>
-        <span className='font-medium font-mono text-sm'>{value}</span>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='size-6 opacity-0 group-hover:opacity-100 transition-opacity'
-          onClick={handleCopy}
-        >
-          {copied ? <Check className='size-3.5' /> : <Copy className='size-3.5' />}
-        </Button>
+        {Icon && <Icon className='size-3.5 text-muted-foreground' />}
+        <p className='text-xs text-muted-foreground'>{label}</p>
       </div>
+      <p className='mt-1 text-sm font-medium'>{value ?? '-'}</p>
     </div>
   )
 }
 
+// 信息行组件
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className='flex items-center justify-between py-2'>
@@ -53,10 +68,14 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
   )
 }
 
-const DISCOUNT_TYPE_CONFIG: Record<DiscountType, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
-  FIXED_AMOUNT: { label: '固定金额', variant: 'default' },
-  PERCENT: { label: '百分比', variant: 'secondary' },
-  FREE_TRIAL: { label: '免费试用', variant: 'outline' },
+// 折扣类型配置
+const DISCOUNT_TYPE_CONFIG: Record<
+  DiscountType,
+  { label: string; variant: 'default' | 'secondary' | 'outline'; icon: React.ElementType }
+> = {
+  FIXED_AMOUNT: { label: '固定金额', variant: 'default', icon: Tag },
+  PERCENT: { label: '百分比', variant: 'secondary', icon: Percent },
+  FREE_TRIAL: { label: '免费试用', variant: 'outline', icon: Gift },
 }
 
 function formatDiscountValue(type: DiscountType, value: number, currency: string | null): string {
@@ -66,7 +85,7 @@ function formatDiscountValue(type: DiscountType, value: number, currency: string
     case 'PERCENT':
       return `${value}%`
     case 'FREE_TRIAL':
-      return `${value}天`
+      return `${value} 天`
     default:
       return String(value)
   }
@@ -107,146 +126,184 @@ export function TemplateDetailSheet({
     }
   }
 
+  const discountConfig = template ? DISCOUNT_TYPE_CONFIG[template.discountType] : null
+  const DiscountIcon = discountConfig?.icon || Gift
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className='w-[600px] sm:max-w-[600px] overflow-y-auto'>
-        <SheetHeader>
+      <SheetContent className='w-full max-w-xl overflow-y-auto p-0 sm:max-w-2xl'>
+        <SheetHeader className='border-b px-6 py-4'>
           <SheetTitle>模板详情</SheetTitle>
         </SheetHeader>
 
         {loading ? (
-          <div className='mt-6 space-y-6'>
-            <div className='space-y-3'>
-              <Skeleton className='h-5 w-24' />
-              <Skeleton className='h-32 w-full' />
+          <div className='p-6 space-y-6'>
+            <div className='flex items-start gap-5'>
+              <Skeleton className='h-16 w-16 rounded-xl' />
+              <div className='flex-1 space-y-2'>
+                <Skeleton className='h-6 w-48' />
+                <Skeleton className='h-4 w-32' />
+              </div>
+            </div>
+            <div className='grid grid-cols-2 gap-4'>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className='h-20 w-full' />
+              ))}
             </div>
           </div>
         ) : template ? (
-          <div className='mt-6 space-y-6'>
-            {/* 基本信息 */}
-            <div>
-              <h3 className='text-sm font-semibold mb-2'>基本信息</h3>
-              <div className='rounded-lg border p-4'>
-                <CopyableField label='ID' value={template.id} />
-                <Separator />
-                <InfoRow label='名称'>{template.name}</InfoRow>
-                {template.description && (
-                  <>
-                    <Separator />
-                    <InfoRow label='描述'>{template.description}</InfoRow>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* 折扣信息 */}
-            <div>
-              <h3 className='text-sm font-semibold mb-2'>折扣信息</h3>
-              <div className='rounded-lg border p-4'>
-                <InfoRow label='折扣类型'>
-                  <Badge variant={DISCOUNT_TYPE_CONFIG[template.discountType]?.variant || 'outline'}>
-                    {DISCOUNT_TYPE_CONFIG[template.discountType]?.label || template.discountTypeDesc}
-                  </Badge>
-                </InfoRow>
-                <Separator />
-                <InfoRow label='折扣值'>
-                  {formatDiscountValue(template.discountType, template.discountValue, template.currency)}
-                </InfoRow>
-                {template.maxDiscountAmount !== null && (
-                  <>
-                    <Separator />
-                    <InfoRow label='最大折扣金额'>{template.maxDiscountAmount}</InfoRow>
-                  </>
-                )}
-                {template.minOrderAmount !== null && (
-                  <>
-                    <Separator />
-                    <InfoRow label='最低订单金额'>{template.minOrderAmount / 100} 元</InfoRow>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* 适用范围 */}
-            <div>
-              <h3 className='text-sm font-semibold mb-2'>适用范围</h3>
-              <div className='rounded-lg border p-4'>
-                <InfoRow label='适用产品类型'>
-                  <Badge variant='outline'>{template.applicableProductTypeDesc}</Badge>
-                </InfoRow>
-                {template.applicableProductIds && template.applicableProductIds.length > 0 && (
-                  <>
-                    <Separator />
-                    <InfoRow label='适用产品ID'>
-                      {template.applicableProductIds.join(', ')}
-                    </InfoRow>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* 有效期与数量 */}
-            <div>
-              <h3 className='text-sm font-semibold mb-2'>有效期与数量</h3>
-              <div className='rounded-lg border p-4'>
-                <InfoRow label='有效天数'>{template.validDays}天</InfoRow>
-                <Separator />
-                <InfoRow label='已发放数量'>{template.issuedQuantity}</InfoRow>
-                <Separator />
-                <InfoRow label='总发放限制'>
-                  {template.totalQuantity !== null ? template.totalQuantity : '不限'}
-                </InfoRow>
-                <Separator />
-                <InfoRow label='每用户限制'>
-                  {template.perUserLimit !== null ? template.perUserLimit : '不限'}
-                </InfoRow>
-                <Separator />
-                <InfoRow label='每团队限制'>
-                  {template.perTeamLimit !== null ? template.perTeamLimit : '不限'}
-                </InfoRow>
-              </div>
-            </div>
-
-            {/* 状态 */}
-            <div>
-              <h3 className='text-sm font-semibold mb-2'>状态</h3>
-              <div className='rounded-lg border p-4'>
-                <InfoRow label='启用状态'>
-                  <Badge variant={template.status ? 'default' : 'secondary'}>
-                    {template.status ? '已启用' : '已禁用'}
-                  </Badge>
-                </InfoRow>
-              </div>
-            </div>
-
-            {/* 时间信息 */}
-            <div>
-              <h3 className='text-sm font-semibold mb-2'>时间信息</h3>
-              <div className='rounded-lg border p-4'>
-                <InfoRow label='创建时间'>
-                  {dayjs(template.createTime).format('YYYY-MM-DD HH:mm:ss')}
-                </InfoRow>
-                <Separator />
-                <InfoRow label='更新时间'>
-                  {dayjs(template.updateTime).format('YYYY-MM-DD HH:mm:ss')}
-                </InfoRow>
-              </div>
-            </div>
-
-            {/* 元数据 */}
-            {template.metadata && (
-              <div>
-                <h3 className='text-sm font-semibold mb-2'>扩展数据</h3>
-                <div className='rounded-lg border p-4'>
-                  <pre className='text-xs overflow-x-auto whitespace-pre-wrap'>
-                    {template.metadata}
-                  </pre>
+          <>
+            {/* Header */}
+            <div className='border-b bg-muted/30 px-6 py-6'>
+              <div className='flex items-start gap-5'>
+                <div className='flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10'>
+                  <DiscountIcon className='h-8 w-8 text-primary' />
+                </div>
+                <div className='flex-1'>
+                  <div className='flex items-center gap-3'>
+                    <h3 className='text-xl font-semibold tracking-tight'>{template.name}</h3>
+                    <Badge variant={template.status ? 'default' : 'secondary'}>
+                      {template.status ? '已启用' : '已禁用'}
+                    </Badge>
+                  </div>
+                  <div className='mt-1 flex items-center gap-2 text-sm text-muted-foreground'>
+                    <span>ID: {template.id}</span>
+                    <CopyButton text={String(template.id)} />
+                  </div>
+                  {template.description && (
+                    <p className='mt-2 text-sm text-muted-foreground'>{template.description}</p>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* 折扣展示 */}
+              <div className='mt-5 flex items-baseline gap-2'>
+                <span className='text-3xl font-bold'>
+                  {formatDiscountValue(template.discountType, template.discountValue, template.currency)}
+                </span>
+                <Badge variant={discountConfig?.variant || 'outline'}>
+                  {discountConfig?.label || template.discountTypeDesc}
+                </Badge>
+              </div>
+            </div>
+
+            {/* 内容区域 */}
+            <div className='p-6 space-y-6'>
+              {/* 数量统计 */}
+              <div>
+                <h4 className='text-sm font-semibold mb-4'>数量统计</h4>
+                <div className='grid grid-cols-3 gap-4'>
+                  <InfoCard label='已发放数量' value={template.issuedQuantity} />
+                  <InfoCard
+                    label='总发放限制'
+                    value={template.totalQuantity !== null ? template.totalQuantity : '不限'}
+                  />
+                  <InfoCard
+                    label='有效天数'
+                    value={`${template.validDays} 天`}
+                    icon={Calendar}
+                  />
+                </div>
+              </div>
+
+              {/* 使用限制 */}
+              <div>
+                <h4 className='text-sm font-semibold mb-4'>使用限制</h4>
+                <div className='grid grid-cols-2 gap-4'>
+                  <InfoCard
+                    label='每用户限制'
+                    value={template.perUserLimit !== null ? template.perUserLimit : '不限'}
+                  />
+                  <InfoCard
+                    label='每团队限制'
+                    value={template.perTeamLimit !== null ? template.perTeamLimit : '不限'}
+                  />
+                </div>
+              </div>
+
+              {/* 折扣详情 */}
+              <div>
+                <h4 className='text-sm font-semibold mb-4'>折扣详情</h4>
+                <div className='rounded-lg border p-4'>
+                  <InfoRow label='折扣类型'>
+                    <Badge variant={discountConfig?.variant || 'outline'}>
+                      {discountConfig?.label || template.discountTypeDesc}
+                    </Badge>
+                  </InfoRow>
+                  <Separator />
+                  <InfoRow label='折扣值'>
+                    {formatDiscountValue(template.discountType, template.discountValue, template.currency)}
+                  </InfoRow>
+                  {template.maxDiscountAmount !== null && (
+                    <>
+                      <Separator />
+                      <InfoRow label='最大折扣金额'>{template.maxDiscountAmount} 元</InfoRow>
+                    </>
+                  )}
+                  {template.minOrderAmount !== null && (
+                    <>
+                      <Separator />
+                      <InfoRow label='最低订单金额'>{template.minOrderAmount / 100} 元</InfoRow>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* 适用范围 */}
+              <div>
+                <h4 className='text-sm font-semibold mb-4'>适用范围</h4>
+                <div className='rounded-lg border p-4'>
+                  <InfoRow label='适用产品类型'>
+                    <Badge variant='outline'>{template.applicableProductTypeDesc}</Badge>
+                  </InfoRow>
+                  {template.applicableProductIds && template.applicableProductIds.length > 0 && (
+                    <>
+                      <Separator />
+                      <InfoRow label='适用产品ID'>
+                        <span className='font-mono text-sm'>
+                          {template.applicableProductIds.join(', ')}
+                        </span>
+                      </InfoRow>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* 时间信息 */}
+              <div>
+                <h4 className='text-sm font-semibold mb-4'>时间信息</h4>
+                <div className='rounded-lg border p-4'>
+                  <InfoRow label='创建时间'>
+                    <div className='flex items-center gap-1.5'>
+                      <Clock className='size-3.5 text-muted-foreground' />
+                      {dayjs(template.createTime).format('YYYY-MM-DD HH:mm:ss')}
+                    </div>
+                  </InfoRow>
+                  <Separator />
+                  <InfoRow label='更新时间'>
+                    <div className='flex items-center gap-1.5'>
+                      <Clock className='size-3.5 text-muted-foreground' />
+                      {dayjs(template.updateTime).format('YYYY-MM-DD HH:mm:ss')}
+                    </div>
+                  </InfoRow>
+                </div>
+              </div>
+
+              {/* 扩展数据 */}
+              {template.metadata && (
+                <div>
+                  <h4 className='text-sm font-semibold mb-4'>扩展数据</h4>
+                  <div className='rounded-lg border bg-muted/50 p-4'>
+                    <pre className='text-xs text-muted-foreground whitespace-pre-wrap break-all'>
+                      {template.metadata}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         ) : (
-          <div className='mt-6 flex items-center justify-center h-32 text-muted-foreground'>
+          <div className='flex items-center justify-center h-32 text-muted-foreground'>
             模板信息加载失败
           </div>
         )}

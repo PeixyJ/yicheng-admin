@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Copy, Eye, Pencil, Trash2 } from 'lucide-react'
+import { Check, Copy, Pencil, Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
 
 import {
@@ -120,7 +120,13 @@ export function PromoCodeTable({
                   </TableCell>
                   <TableCell>
                     <div className='group flex items-center gap-1'>
-                      <span className='font-mono text-sm font-medium'>{promoCode.code}</span>
+                      <button
+                        type='button'
+                        className='font-mono text-sm font-medium hover:text-primary hover:underline transition-colors'
+                        onClick={() => onViewDetail?.(promoCode)}
+                      >
+                        {promoCode.code}
+                      </button>
                       <CopyButton text={promoCode.code} />
                     </div>
                   </TableCell>
@@ -158,15 +164,6 @@ export function PromoCodeTable({
                   </TableCell>
                   <TableCell>
                     <div className='flex items-center gap-1'>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='size-8'
-                        onClick={() => onViewDetail?.(promoCode)}
-                        title='查看详情'
-                      >
-                        <Eye className='size-4' />
-                      </Button>
                       <Button
                         variant='ghost'
                         size='icon'

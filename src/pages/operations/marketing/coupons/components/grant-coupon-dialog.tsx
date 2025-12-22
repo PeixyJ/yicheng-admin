@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Gift } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Gift, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -23,7 +22,9 @@ import {
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { grantCoupons } from '@/services/coupon'
+import { getCouponTemplateList } from '@/services/coupon-template'
 import type { CouponSource } from '@/types/coupon'
+import type { CouponTemplateVO } from '@/types/coupon-template'
 
 interface GrantCouponDialogProps {
   onSuccess?: () => void
@@ -33,12 +34,31 @@ export function GrantCouponDialog({ onSuccess }: GrantCouponDialogProps) {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  const [templates, setTemplates] = useState<CouponTemplateVO[]>([])
+  const [loadingTemplates, setLoadingTemplates] = useState(false)
+
   const [templateId, setTemplateId] = useState('')
   const [targetType, setTargetType] = useState<'team' | 'user'>('team')
   const [teamIds, setTeamIds] = useState('')
   const [userIds, setUserIds] = useState('')
   const [source, setSource] = useState<CouponSource>('SYSTEM_GRANT')
   const [grantReason, setGrantReason] = useState('')
+
+  // 加载优惠券模板列表
+  useEffect(() => {
+    if (open) {
+      setLoadingTemplates(true)
+      getCouponTemplateList({ page: 1, size: 100, status: true })
+        .then((res) => {
+          if (res.code === 'success' && res.data?.records) {
+            setTemplates(res.data.records)
+          }
+        })
+        .finally(() => {
+          setLoadingTemplates(false)
+        })
+    }
+  }, [open])
 
   const resetForm = () => {
     setTemplateId('')
@@ -115,17 +135,33 @@ export function GrantCouponDialog({ onSuccess }: GrantCouponDialogProps) {
         </DialogHeader>
 
         <div className='space-y-4'>
-          {/* 模板ID */}
+          {/* 模板选择 */}
           <div>
             <Label>
-              优惠券模板ID <span className='text-destructive'>*</span>
+              优惠券模板 <span className='text-destructive'>*</span>
             </Label>
-            <Input
-              className='mt-1.5'
-              placeholder='请输入模板ID'
-              value={templateId}
-              onChange={(e) => setTemplateId(e.target.value)}
-            />
+            <Select value={templateId} onValueChange={setTemplateId} disabled={loadingTemplates}>
+              <SelectTrigger className='mt-1.5'>
+                {loadingTemplates ? (
+                  <span className='flex items-center gap-2 text-muted-foreground'>
+                    <Loader2 className='size-4 animate-spin' />
+                    加载中...
+                  </span>
+                ) : (
+                  <SelectValue placeholder='请选择优惠券模板' />
+                )}
+              </SelectTrigger>
+              <SelectContent>
+                {templates.map((template) => (
+                  <SelectItem key={template.id} value={String(template.id)}>
+                    {template.name}
+                    <span className='ml-2 text-muted-foreground'>
+                      ({template.discountTypeDesc})
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* 发放目标类型 */}
