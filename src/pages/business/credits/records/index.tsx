@@ -1,19 +1,16 @@
 import { useEffect, useState } from 'react'
 
-import { StatisticsCards } from './components/statistics-cards'
 import { PointTeamSearch } from './components/point-team-search'
 import { PointTeamTable } from './components/point-team-table'
 import { GrantPointsDialog } from './components/grant-points-dialog'
 import { AdjustPointsDialog } from './components/adjust-points-dialog'
 import { Pagination } from '@/components/pagination'
-import { getPointTeamList, getPointStatistics } from '@/services/point'
-import type { PointTeamVO, PointStatisticsVO } from '@/types/point'
+import { getPointTeamList } from '@/services/point'
+import type { PointTeamVO } from '@/types/point'
 
 const CreditRecordsPage = () => {
   const [loading, setLoading] = useState(false)
-  const [statisticsLoading, setStatisticsLoading] = useState(false)
   const [teams, setTeams] = useState<PointTeamVO[]>([])
-  const [statistics, setStatistics] = useState<PointStatisticsVO | null>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
@@ -49,27 +46,10 @@ const CreditRecordsPage = () => {
     }
   }
 
-  const fetchStatistics = async () => {
-    setStatisticsLoading(true)
-    try {
-      const res = await getPointStatistics()
-      if (res.code === 'success') {
-        setStatistics(res.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error)
-    } finally {
-      setStatisticsLoading(false)
-    }
-  }
 
   useEffect(() => {
     fetchTeams()
   }, [page, pageSize])
-
-  useEffect(() => {
-    fetchStatistics()
-  }, [])
 
   const handleSearch = () => {
     setPage(1)
@@ -101,14 +81,12 @@ const CreditRecordsPage = () => {
 
   const handleSuccess = () => {
     fetchTeams()
-    fetchStatistics()
   }
 
   return (
     <div className='flex flex-1 flex-col gap-4'>
       <h1 className='text-2xl font-semibold'>点数管理</h1>
 
-      <StatisticsCards statistics={statistics} loading={statisticsLoading} />
 
       <PointTeamSearch
         teamId={teamId}

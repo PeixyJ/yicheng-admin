@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { NumberInputStacked } from '@/components/shadcn-studio/input/input-42'
 
 import { grantPoints } from '@/services/point'
 import type { PointTeamVO } from '@/types/point'
@@ -31,14 +32,14 @@ export function GrantPointsDialog({
   onSuccess,
 }: GrantPointsDialogProps) {
   const [submitting, setSubmitting] = useState(false)
-  const [points, setPoints] = useState('')
-  const [validDays, setValidDays] = useState('')
+  const [points, setPoints] = useState<number | null>(null)
+  const [validDays, setValidDays] = useState<number | null>(null)
   const [reason, setReason] = useState('')
 
   useEffect(() => {
     if (open) {
-      setPoints('')
-      setValidDays('')
+      setPoints(null)
+      setValidDays(null)
       setReason('')
     }
   }, [open])
@@ -50,8 +51,8 @@ export function GrantPointsDialog({
     try {
       const response = await grantPoints({
         teamId: team.teamId,
-        points: Number(points),
-        validDays: validDays ? Number(validDays) : undefined,
+        points: points,
+        validDays: validDays ?? undefined,
         reason: reason.trim(),
       })
       if (response.code === 'success') {
@@ -65,7 +66,7 @@ export function GrantPointsDialog({
     }
   }
 
-  const isValid = points && Number(points) > 0 && reason.trim()
+  const isValid = points && points > 0 && reason.trim()
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,17 +79,27 @@ export function GrantPointsDialog({
             赠送点数
           </DialogTitle>
           <DialogDescription>
-            向团队 {team?.teamId} 赠送点数
+            向团队 {team?.teamName} 赠送点数
           </DialogDescription>
         </DialogHeader>
         <div className='space-y-4'>
-          <div>
-            <Label>团队ID</Label>
-            <Input
-              className='mt-1.5'
-              value={team?.teamId ?? ''}
-              disabled
-            />
+          <div className='grid grid-cols-2 gap-4'>
+            <div>
+              <Label>团队名称</Label>
+              <Input
+                className='mt-1.5'
+                value={team?.teamName ?? ''}
+                disabled
+              />
+            </div>
+            <div>
+              <Label>团队类型</Label>
+              <Input
+                className='mt-1.5'
+                value={team?.teamTypeDesc ?? ''}
+                disabled
+              />
+            </div>
           </div>
           <div>
             <Label>当前可用点数</Label>
@@ -98,28 +109,21 @@ export function GrantPointsDialog({
               disabled
             />
           </div>
-          <div>
-            <Label>赠送点数 <span className='text-destructive'>*</span></Label>
-            <Input
-              className='mt-1.5'
-              type='number'
-              placeholder='请输入赠送点数'
-              value={points}
-              onChange={(e) => setPoints(e.target.value)}
-              min={1}
-            />
-          </div>
-          <div>
-            <Label>有效天数</Label>
-            <Input
-              className='mt-1.5'
-              type='number'
-              placeholder='留空表示永不过期'
-              value={validDays}
-              onChange={(e) => setValidDays(e.target.value)}
-              min={1}
-            />
-          </div>
+          <NumberInputStacked
+            label='赠送点数'
+            placeholder='请输入赠送点数'
+            required
+            value={points ?? undefined}
+            onChange={setPoints}
+            minValue={1}
+          />
+          <NumberInputStacked
+            label='有效天数'
+            placeholder='留空表示永不过期'
+            value={validDays ?? undefined}
+            onChange={setValidDays}
+            minValue={1}
+          />
           <div>
             <Label>赠送原因 <span className='text-destructive'>*</span></Label>
             <Textarea

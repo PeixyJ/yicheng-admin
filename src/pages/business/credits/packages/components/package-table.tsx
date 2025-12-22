@@ -43,8 +43,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 function formatPrice(price: number, currency: Currency): string {
-  const amount = price / 100
-  return currency === 'CNY' ? `¥${amount.toFixed(2)}` : `$${amount.toFixed(2)}`
+  return currency === 'CNY' ? `¥${price.toFixed(2)}` : `$${price.toFixed(2)}`
 }
 
 interface PackageTableProps {

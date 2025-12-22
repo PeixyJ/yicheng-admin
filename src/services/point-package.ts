@@ -42,27 +42,27 @@ export function createPointPackage(data: CreatePointPackageRequest) {
 /**
  * 更新点数套餐
  */
-export function updatePointPackage(packageId: number, data: UpdatePointPackageRequest) {
-  return patch<void>(`/v1/point/packages/${packageId}`, data)
+export function updatePointPackage(id: number, data: UpdatePointPackageRequest) {
+  return patch<void>(`/v1/point/packages/${id}`, data)
 }
 
 /**
  * 更新上架状态
  */
-export function updatePointPackageStatus(packageId: number, status: boolean) {
-  return put<void>(`/v1/point/packages/${packageId}/status?status=${status}`)
+export function updatePointPackageStatus(id: number, status: boolean) {
+  return put<void>(`/v1/point/packages/${id}/status?status=${status}`)
 }
 
 /**
  * 更新可见状态
  */
-export function updatePointPackageVisible(packageId: number, visible: boolean) {
-  return put<void>(`/v1/point/packages/${packageId}/visible?visible=${visible}`)
+export function updatePointPackageVisible(id: number, visible: boolean) {
+  return put<void>(`/v1/point/packages/${id}/visible?visible=${visible}`)
 }
 
 /**
  * 同步到 Stripe
  */
-export function syncPointPackageToStripe(packageId: number) {
-  return post<void>(`/v1/point/packages/${packageId}/sync-stripe`)
+export function syncPointPackageToStripe(id: number) {
+  return post<void>(`/v1/point/packages/${id}/sync-stripe`)
 }

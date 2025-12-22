@@ -11,6 +11,14 @@ export interface PointTeamVO {
   id: number
   /** 团队ID */
   teamId: number
+  /** 团队名称 */
+  teamName: string | null
+  /** 团队类型：PERSONAL-个人, TEAM-协作 */
+  teamType: 'PERSONAL' | 'TEAM' | null
+  /** 团队类型描述 */
+  teamTypeDesc: string | null
+  /** 团队Logo */
+  teamLogoUrl: string | null
   /** 历史累计获得的总点数 */
   totalPoints: number
   /** 历史累计消耗的点数 */
@@ -46,6 +54,14 @@ export interface PointTransactionRecordVO {
   id: number
   /** 团队ID */
   teamId: number
+  /** 团队名称 */
+  teamName: string | null
+  /** 团队类型：PERSONAL-个人, TEAM-协作 */
+  teamType: 'PERSONAL' | 'TEAM' | null
+  /** 团队类型描述 */
+  teamTypeDesc: string | null
+  /** 团队Logo */
+  teamLogoUrl: string | null
   /** 交易流水号 */
   transactionNo: string
   /** 交易类型 */
@@ -66,6 +82,8 @@ export interface PointTransactionRecordVO {
   bizId: string | null
   /** 操作人ID */
   operatorId: number | null
+  /** 操作人名称 */
+  operatorName: string | null
   /** 交易备注 */
   remark: string | null
   /** 创建时间 */

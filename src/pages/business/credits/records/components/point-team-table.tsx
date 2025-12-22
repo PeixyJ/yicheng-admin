@@ -9,6 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import type { PointTeamVO } from '@/types/point'
@@ -53,7 +55,7 @@ export function PointTeamTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-24'>团队ID</TableHead>
+            <TableHead className='min-w-48'>团队</TableHead>
             <TableHead className='w-32'>总点数</TableHead>
             <TableHead className='w-32'>已用点数</TableHead>
             <TableHead className='w-32'>可用点数</TableHead>
@@ -83,9 +85,27 @@ export function PointTeamTable({
             teams.map((team) => (
               <TableRow key={team.id}>
                 <TableCell>
-                  <div className='group flex items-center gap-1'>
-                    <span className='font-medium'>{team.teamId}</span>
-                    <CopyButton text={String(team.teamId)} />
+                  <div className='group flex items-center gap-3'>
+                    <Avatar className='size-8'>
+                      <AvatarImage src={team.teamLogoUrl || undefined} alt={team.teamName || ''} />
+                      <AvatarFallback className='text-xs'>
+                        {team.teamName?.slice(0, 1) || team.teamId}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className='flex flex-col min-w-0'>
+                      <div className='flex items-center gap-2'>
+                        <span className='font-medium truncate'>{team.teamName || `团队 ${team.teamId}`}</span>
+                        {team.teamType && (
+                          <Badge variant={team.teamType === 'PERSONAL' ? 'secondary' : 'outline'} className='shrink-0'>
+                            {team.teamType === 'PERSONAL' ? '个人' : '协作'}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className='flex items-center gap-1 text-xs text-muted-foreground'>
+                        <span>ID: {team.teamId}</span>
+                        <CopyButton text={String(team.teamId)} />
+                      </div>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>

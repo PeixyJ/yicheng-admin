@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Copy, Eye } from 'lucide-react'
+import { Check, Copy } from 'lucide-react'
 import dayjs from 'dayjs'
 
 import {
@@ -13,6 +13,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { PointTransactionRecordVO, TransactionType } from '@/types/point'
 
 function CopyButton({ text }: { text: string }) {
@@ -62,14 +63,13 @@ export function TransactionTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-40'>交易单号</TableHead>
-            <TableHead className='w-24'>团队ID</TableHead>
+            <TableHead className='w-44'>交易单号</TableHead>
+            <TableHead className='w-48'>团队信息</TableHead>
             <TableHead className='w-24'>交易类型</TableHead>
             <TableHead className='w-28'>变动点数</TableHead>
             <TableHead className='w-28'>变动前点数</TableHead>
             <TableHead className='w-28'>变动后点数</TableHead>
             <TableHead className='w-40'>交易时间</TableHead>
-            <TableHead className='w-20'>操作</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -77,18 +77,25 @@ export function TransactionTable({
             Array.from({ length: 5 }).map((_, index) => (
               <TableRow key={index}>
                 <TableCell><Skeleton className='h-4 w-32' /></TableCell>
-                <TableCell><Skeleton className='h-4 w-16' /></TableCell>
+                <TableCell>
+                  <div className='flex items-center gap-2'>
+                    <Skeleton className='size-8 rounded-full' />
+                    <div className='space-y-1'>
+                      <Skeleton className='h-4 w-20' />
+                      <Skeleton className='h-3 w-12' />
+                    </div>
+                  </div>
+                </TableCell>
                 <TableCell><Skeleton className='h-5 w-14' /></TableCell>
                 <TableCell><Skeleton className='h-4 w-20' /></TableCell>
                 <TableCell><Skeleton className='h-4 w-20' /></TableCell>
                 <TableCell><Skeleton className='h-4 w-20' /></TableCell>
                 <TableCell><Skeleton className='h-4 w-32' /></TableCell>
-                <TableCell><Skeleton className='h-8 w-16' /></TableCell>
               </TableRow>
             ))
           ) : transactions.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className='h-24 text-center text-muted-foreground'>
+              <TableCell colSpan={7} className='h-24 text-center text-muted-foreground'>
                 暂无数据
               </TableCell>
             </TableRow>
@@ -104,14 +111,28 @@ export function TransactionTable({
                 <TableRow key={transaction.id}>
                   <TableCell>
                     <div className='group flex items-center gap-1'>
-                      <span className='font-mono text-sm'>{transaction.transactionNo}</span>
+                      <button
+                        type='button'
+                        className='font-mono text-sm text-primary hover:underline cursor-pointer'
+                        onClick={() => onViewDetail?.(transaction)}
+                      >
+                        {transaction.transactionNo}
+                      </button>
                       <CopyButton text={transaction.transactionNo} />
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className='group flex items-center gap-1'>
-                      <span className='font-medium'>{transaction.teamId}</span>
-                      <CopyButton text={String(transaction.teamId)} />
+                    <div className='flex items-center gap-2'>
+                      <Avatar className='size-8'>
+                        <AvatarImage src={transaction.teamLogoUrl ?? undefined} />
+                        <AvatarFallback className='text-xs'>
+                          {transaction.teamName?.charAt(0) ?? 'T'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className='flex flex-col'>
+                        <span className='text-sm font-medium'>{transaction.teamName ?? '-'}</span>
+                        <span className='text-xs text-muted-foreground'>{transaction.teamTypeDesc ?? '-'}</span>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -134,16 +155,6 @@ export function TransactionTable({
                     <span className='text-muted-foreground'>
                       {dayjs(transaction.createTime).format('YYYY-MM-DD HH:mm:ss')}
                     </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => onViewDetail?.(transaction)}
-                    >
-                      <Eye className='mr-1 size-3.5' />
-                      详情
-                    </Button>
                   </TableCell>
                 </TableRow>
               )

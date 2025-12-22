@@ -77,8 +77,7 @@ function InfoCard({ label, value }: { label: string; value: string | number | nu
 }
 
 function formatPrice(price: number, currency: Currency): string {
-  const amount = price / 100
-  return currency === 'CNY' ? `¥${amount.toFixed(2)}` : `$${amount.toFixed(2)}`
+  return currency === 'CNY' ? `¥${price.toFixed(2)}` : `$${price.toFixed(2)}`
 }
 
 export function PackageDetailSheet({ pkg, open, onOpenChange, onPackageUpdated }: PackageDetailSheetProps) {

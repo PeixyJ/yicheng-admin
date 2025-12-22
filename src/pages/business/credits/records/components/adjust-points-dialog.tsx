@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { NumberInputStacked } from '@/components/shadcn-studio/input/input-42'
 
 import { adjustPoints } from '@/services/point'
 import type { PointTeamVO } from '@/types/point'
@@ -31,24 +32,24 @@ export function AdjustPointsDialog({
   onSuccess,
 }: AdjustPointsDialogProps) {
   const [submitting, setSubmitting] = useState(false)
-  const [points, setPoints] = useState('')
+  const [points, setPoints] = useState<number | null>(null)
   const [reason, setReason] = useState('')
 
   useEffect(() => {
     if (open) {
-      setPoints('')
+      setPoints(null)
       setReason('')
     }
   }, [open])
 
   const handleSubmit = async () => {
-    if (!team || !points || !reason.trim()) return
+    if (!team || points === null || points === 0 || !reason.trim()) return
 
     setSubmitting(true)
     try {
       const response = await adjustPoints({
         teamId: team.teamId,
-        points: Number(points),
+        points: points,
         reason: reason.trim(),
       })
       if (response.code === 'success') {
@@ -62,8 +63,7 @@ export function AdjustPointsDialog({
     }
   }
 
-  const pointsNum = Number(points)
-  const isValid = points && pointsNum !== 0 && reason.trim()
+  const isValid = points !== null && points !== 0 && reason.trim()
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,17 +76,27 @@ export function AdjustPointsDialog({
             调整点数
           </DialogTitle>
           <DialogDescription>
-            调整团队 {team?.teamId} 的点数（正数增加，负数扣减）
+            调整团队 {team?.teamName} 的点数（正数增加，负数扣减）
           </DialogDescription>
         </DialogHeader>
         <div className='space-y-4'>
-          <div>
-            <Label>团队ID</Label>
-            <Input
-              className='mt-1.5'
-              value={team?.teamId ?? ''}
-              disabled
-            />
+          <div className='grid grid-cols-2 gap-4'>
+            <div>
+              <Label>团队名称</Label>
+              <Input
+                className='mt-1.5'
+                value={team?.teamName ?? ''}
+                disabled
+              />
+            </div>
+            <div>
+              <Label>团队类型</Label>
+              <Input
+                className='mt-1.5'
+                value={team?.teamTypeDesc ?? ''}
+                disabled
+              />
+            </div>
           </div>
           <div>
             <Label>当前可用点数</Label>
@@ -97,17 +107,16 @@ export function AdjustPointsDialog({
             />
           </div>
           <div>
-            <Label>调整点数 <span className='text-destructive'>*</span></Label>
-            <Input
-              className='mt-1.5'
-              type='number'
+            <NumberInputStacked
+              label='调整点数'
               placeholder='正数增加，负数扣减'
-              value={points}
-              onChange={(e) => setPoints(e.target.value)}
+              required
+              value={points ?? undefined}
+              onChange={setPoints}
             />
-            {points && pointsNum !== 0 && (
-              <p className={`mt-1 text-sm ${pointsNum > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {pointsNum > 0 ? `增加 ${pointsNum.toLocaleString()} 点` : `扣减 ${Math.abs(pointsNum).toLocaleString()} 点`}
+            {points !== null && points !== 0 && (
+              <p className={`mt-1 text-sm ${points > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {points > 0 ? `增加 ${points.toLocaleString()} 点` : `扣减 ${Math.abs(points).toLocaleString()} 点`}
               </p>
             )}
           </div>
@@ -129,7 +138,7 @@ export function AdjustPointsDialog({
           <Button
             onClick={handleSubmit}
             disabled={!isValid || submitting}
-            variant={pointsNum < 0 ? 'destructive' : 'default'}
+            variant={points !== null && points < 0 ? 'destructive' : 'default'}
           >
             确认调整
           </Button>
