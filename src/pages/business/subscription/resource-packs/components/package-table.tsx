@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Copy, Eye, Power, PowerOff } from 'lucide-react'
+import { Check, Copy, Pencil, Power, PowerOff } from 'lucide-react'
 
 import {
   Table,
@@ -168,7 +168,7 @@ export function PackageTable({
                           className='size-8'
                           onClick={() => onView?.(pkg)}
                         >
-                          <Eye className='size-4' />
+                          <Pencil className='size-4' />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>查看详情</TooltipContent>

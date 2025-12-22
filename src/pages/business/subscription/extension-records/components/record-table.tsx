@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Copy, Eye, Undo2 } from 'lucide-react'
+import { Check, Copy, Eye, MessageSquareText, Undo2 } from 'lucide-react'
 
 import {
   Table,
@@ -172,12 +172,15 @@ export function RecordTable({
                 </TableCell>
                 <TableCell>
                   {record.source === 'GRANT' && record.grantUserId ? (
-                    <div className='text-sm'>
-                      <div>操作人: {record.grantUserName || record.grantUserId}</div>
+                    <div className='flex items-center gap-1.5 text-sm'>
+                      <span>{record.grantUserName || record.grantUserId}</span>
                       {record.grantReason && (
-                        <div className='text-muted-foreground truncate max-w-32' title={record.grantReason}>
-                          {record.grantReason}
-                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <MessageSquareText className='size-4 text-muted-foreground cursor-help' />
+                          </TooltipTrigger>
+                          <TooltipContent>{record.grantReason}</TooltipContent>
+                        </Tooltip>
                       )}
                     </div>
                   ) : (

@@ -255,7 +255,7 @@ export function PackageDetailSheet({
                           <FormLabel>资源类型</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className='w-full'>
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
@@ -299,7 +299,7 @@ export function PackageDetailSheet({
                           <FormLabel>货币类型</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className='w-full'>
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
