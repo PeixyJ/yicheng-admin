@@ -161,11 +161,11 @@ export function TeamTable({ teams, loading, onTeamClick }: TeamTableProps) {
                     >
                       <Avatar className='size-8'>
                         <AvatarImage src={team.logoUrl || undefined} />
-                        <AvatarFallback>{team.name.slice(0, 2)}</AvatarFallback>
+                        <AvatarFallback>{team.name?.slice(0, 2) ?? '??'}</AvatarFallback>
                       </Avatar>
-                      <span>{team.name}</span>
+                      <span>{team.name ?? '-'}</span>
                     </div>
-                    <CopyButton text={team.name} />
+                    <CopyButton text={team.name ?? ''} />
                   </div>
                 </TableCell>
                 <TableCell>{getTeamTypeBadge(team.teamType)}</TableCell>
@@ -191,10 +191,10 @@ export function TeamTable({ teams, loading, onTeamClick }: TeamTableProps) {
                   <div className='group flex items-center gap-2'>
                     <Avatar className='size-6'>
                       <AvatarImage src={team.ownerAvatarUrl || undefined} />
-                      <AvatarFallback className='text-xs'>{team.ownerNickname.slice(0, 1)}</AvatarFallback>
+                      <AvatarFallback className='text-xs'>{team.ownerNickname?.slice(0, 1) ?? '?'}</AvatarFallback>
                     </Avatar>
-                    <span>{team.ownerNickname}</span>
-                    <CopyButton text={team.ownerNickname} />
+                    <span>{team.ownerNickname ?? '-'}</span>
+                    <CopyButton text={team.ownerNickname ?? ''} />
                   </div>
                 </TableCell>
                 <TableCell>

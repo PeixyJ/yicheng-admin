@@ -134,3 +134,10 @@ export function inviteTeamMember(id: number, userId: number) {
 export function removeTeamMember(id: number, memberId: number) {
   return del<void>(`/v1/team/${id}/members/${memberId}`)
 }
+
+/**
+ * 全局同步所有团队配额（日配额和月配额）
+ */
+export function syncAllTeamQuota() {
+  return post<number>('/v1/team/quota/sync')
+}
