@@ -12,7 +12,6 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { cn } from '@/lib/utils'
 
 interface RevenueChartProps {
   className?: string
