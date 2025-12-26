@@ -1,13 +1,16 @@
 # Stage 1: Build
 FROM node:22-alpine AS builder
 
+# 启用 corepack 并激活 pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 WORKDIR /app
 
 # 复制依赖文件
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml ./
 
 # 安装依赖
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # 复制源代码
 COPY . .
@@ -17,7 +20,7 @@ ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # 构建
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Production
 FROM nginx:alpine
