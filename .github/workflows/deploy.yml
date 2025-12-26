@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: registry.cn-hangzhou.aliyuncs.com
-  IMAGE_NAME: registry.cn-hangzhou.aliyuncs.com/yicheng-admin/yicheng-admin
+  IMAGE_NAME: registry.cn-hangzhou.aliyuncs.com/yicheng-studio/yicheng-admin
 
 jobs:
   build:
